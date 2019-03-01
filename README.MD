@@ -35,8 +35,10 @@ III. Project Overview:
    
    Add New Order Jpanel: haven't done any thing, need to design the front-end, and perform add new order ( make sure update   table order_item table and add new order)
       
-   *** Importan: Sale Report JPanel: 
+   *** Important: Sale Report JPanel: 
+
    I think we should create some difficult queries here to get a good credit for this project. Everyone should come up with   3 different querries. Some of the querries that I think should be
+   
       - Find all customer that bought bikes in all the categories
       - Find all customer that bought bikes in all the category and manufactureres
       - Find all sales for each category by month
