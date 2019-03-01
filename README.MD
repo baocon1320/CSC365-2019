@@ -24,10 +24,15 @@ II. Database Design
 III. Project Overview:
 
    Manufacturer JPanel: This Panel work well, we can add new, update or delete a category. (will set manufacturer_id to       null in table Bicycle on delete)
+   
    Category JPanel: This Panel also work well, we can add new, update or detete a category. (will set category_id to         null in table Bicycle on delete)
+   
    Bicycle JPanel: This Panel also work, can add new, update or delete a category.
+   
    Customer Jpanel: Already finished design the front-end, need to load the data to table, and perform delete, add new and   update a customer. Make sure when add a new customer, we need also add a new row on table address.
+   
    Order JPanel: Already finished design the front-end, need to load data to table, perform update an order (Maybe just       only allow update the status) and perform delete. 
+   
    Add New Order Jpanel: haven't done any thing, need to design the front-end, and perform add new order ( make sure update   table order_item table and add new order)
       
    *** Importan: Sale Report JPanel: 
