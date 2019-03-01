@@ -115,32 +115,42 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" alignment="0" attributes="0">
-                  <EmptySpace min="-2" pref="71" max="-2" attributes="0"/>
+              <Group type="102" attributes="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="jPanelItem_Order_Detail" min="-2" max="-2" attributes="0"/>
                       <Group type="102" attributes="0">
+                          <EmptySpace min="-2" pref="71" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLabel3" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLabel4" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLabel6" alignment="0" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace min="-2" pref="58" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                              <Component id="jTextFieldId" max="32767" attributes="0"/>
-                              <Component id="jTextFieldCustomerName" max="32767" attributes="0"/>
-                              <Component id="jTextFieldCustomerEmail" max="32767" attributes="0"/>
+                              <Component id="jPanelItem_Order_Detail" min="-2" max="-2" attributes="0"/>
                               <Group type="102" attributes="0">
-                                  <Component id="jTextFieldTotalAmount" min="-2" pref="208" max="-2" attributes="0"/>
-                                  <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
-                                  <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace type="separate" max="-2" attributes="0"/>
-                                  <Component id="jTextFieldDatePurchased" pref="191" max="32767" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Component id="jLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jLabel3" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jLabel4" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jLabel6" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <EmptySpace min="-2" pref="58" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                      <Component id="jTextFieldId" max="32767" attributes="0"/>
+                                      <Component id="jTextFieldCustomerName" max="32767" attributes="0"/>
+                                      <Component id="jTextFieldCustomerEmail" max="32767" attributes="0"/>
+                                      <Group type="102" attributes="0">
+                                          <Component id="jTextFieldTotalAmount" min="-2" pref="208" max="-2" attributes="0"/>
+                                          <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
+                                          <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                                          <Component id="jTextFieldDatePurchased" pref="191" max="32767" attributes="0"/>
+                                      </Group>
+                                      <Component id="jComboBoxOrderStatus" max="32767" attributes="0"/>
+                                  </Group>
                               </Group>
-                              <Component id="jComboBoxOrderStatus" max="32767" attributes="0"/>
                           </Group>
+                      </Group>
+                      <Group type="102" alignment="0" attributes="0">
+                          <EmptySpace min="-2" pref="253" max="-2" attributes="0"/>
+                          <Component id="jButtonUpdate" min="-2" pref="109" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="116" max="-2" attributes="0"/>
+                          <Component id="jButtonDelete" min="-2" pref="109" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace pref="83" max="32767" attributes="0"/>
@@ -179,7 +189,12 @@
                   </Group>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Component id="jPanelItem_Order_Detail" min="-2" pref="247" max="-2" attributes="0"/>
-                  <EmptySpace pref="41" max="32767" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="jButtonUpdate" alignment="3" max="32767" attributes="0"/>
+                      <Component id="jButtonDelete" alignment="3" max="32767" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -211,6 +226,9 @@
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="jTextFieldId">
+          <Properties>
+            <Property name="dragEnabled" type="boolean" value="false"/>
+          </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="jTextFieldCustomerName">
         </Component>
@@ -219,6 +237,9 @@
         <Component class="javax.swing.JTextField" name="jTextFieldTotalAmount">
         </Component>
         <Component class="javax.swing.JTextField" name="jTextFieldDatePurchased">
+          <Properties>
+            <Property name="enabled" type="boolean" value="false"/>
+          </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel6">
           <Properties>
@@ -291,6 +312,16 @@
             </Container>
           </SubComponents>
         </Container>
+        <Component class="javax.swing.JButton" name="jButtonUpdate">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Update"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="jButtonDelete">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Delete"/>
+          </Properties>
+        </Component>
       </SubComponents>
     </Container>
   </SubComponents>

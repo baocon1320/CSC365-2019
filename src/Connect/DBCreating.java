@@ -73,10 +73,12 @@ public class DBCreating {
                         + "model varchar(50) not null,"
                         + "price double,"
                         + "stock integer not null,"
-                        + "manufacturer_id integer not null,"
-                        + "category_id integer not null,"
-                        + "foreign key (manufacturer_id) references Manufacturer(mid),"
-                        + "foreign key (category_id) references Category(cid))";
+                        + "manufacturer_id integer,"
+                        + "category_id integer,"
+                        + "foreign key (manufacturer_id) references Manufacturer(mid)"
+                        + " on delete set null on update cascade,"
+                        + "foreign key (category_id) references Category(cid)"
+                        + " on delete set null on update cascade)";
                 st.executeUpdate(bicycleCreate);
 
                 // Create table State
@@ -123,7 +125,8 @@ public class DBCreating {
                         + "email varchar(50) not null unique,"
                         + "phone varchar(10) not null,"
                         + "address_id integer,"
-                        + "foreign key (address_id) references Address(aid))";
+                        + "foreign key (address_id) references Address(aid)"
+                        + " on delete set null on update cascade)";
                 st.executeUpdate(customerCreate);
 
                 // Create table Order_status
@@ -131,15 +134,24 @@ public class DBCreating {
                         + "sid integer auto_increment primary key,"
                         + "description varchar(20) not null unique)";
                 st.executeUpdate(orderStatusCreate);
+                
+                // Insert 3 status to order status table
+                String[] orderStatus = {"Processing", "Done", "Cancel"};
+                for(int i = 0; i < orderStatus.length; i++) {
+                    st.executeUpdate("insert into Order_status(description)"
+                            + " values('" + orderStatus[i] + "')");
+                }
+                
 
                 // Create table Order
                 String orderCreate = "create table Order_info ("
                         + "id integer auto_increment primary key,"
-                        + "customer_id integer not null,"
+                        + "customer_id integer,"
                         + "price double not null, "
                         + "date_order date not  null,"
                         + "status_id integer not null,"
-                        + "foreign key (customer_id) references Customer(cid),"
+                        + "foreign key (customer_id) references Customer(cid)"
+                        + " on delete set null on update cascade,"
                         + "foreign key (status_id) references Order_status(sid))";
                 st.executeUpdate(orderCreate);
 
@@ -150,8 +162,10 @@ public class DBCreating {
                         + "price double,"
                         + "quantity integer,"
                         + "primary key (bicycle_id, order_id),"
-                        + "foreign key (bicycle_id) references Bicycle(bid),"
-                        + "foreign key (order_id) references Order_info(id))";
+                        + "foreign key (bicycle_id) references Bicycle(bid) "
+                        + "on delete cascade on update cascade,"
+                        + "foreign key (order_id) references Order_info(id) "
+                        + "on delete cascade on update cascade)";
                 st.executeUpdate(item_orderCreate);
 
             }

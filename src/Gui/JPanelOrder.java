@@ -100,6 +100,8 @@ public class JPanelOrder extends javax.swing.JPanel {
         jPanelItem_Order_Detail = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTableItemOrderDetail = new javax.swing.JTable();
+        jButtonUpdate = new javax.swing.JButton();
+        jButtonDelete = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -149,6 +151,10 @@ public class JPanelOrder extends javax.swing.JPanel {
 
         jLabel5.setText("Date Purchased");
 
+        jTextFieldId.setDragEnabled(false);
+
+        jTextFieldDatePurchased.setEnabled(false);
+
         jLabel6.setText("OrderStatus");
 
         jPanelItem_Order_Detail.setBackground(new java.awt.Color(255, 255, 255));
@@ -184,33 +190,44 @@ public class JPanelOrder extends javax.swing.JPanel {
                 .addGap(227, 227, 227))
         );
 
+        jButtonUpdate.setText("Update");
+
+        jButtonDelete.setText("Delete");
+
         javax.swing.GroupLayout jPanelDetailLayout = new javax.swing.GroupLayout(jPanelDetail);
         jPanelDetail.setLayout(jPanelDetailLayout);
         jPanelDetailLayout.setHorizontalGroup(
             jPanelDetailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelDetailLayout.createSequentialGroup()
-                .addGap(71, 71, 71)
                 .addGroup(jPanelDetailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanelItem_Order_Detail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanelDetailLayout.createSequentialGroup()
+                        .addGap(71, 71, 71)
                         .addGroup(jPanelDetailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel6))
-                        .addGap(58, 58, 58)
-                        .addGroup(jPanelDetailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jTextFieldId)
-                            .addComponent(jTextFieldCustomerName)
-                            .addComponent(jTextFieldCustomerEmail)
+                            .addComponent(jPanelItem_Order_Detail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanelDetailLayout.createSequentialGroup()
-                                .addComponent(jTextFieldTotalAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(27, 27, 27)
-                                .addComponent(jLabel5)
-                                .addGap(18, 18, 18)
-                                .addComponent(jTextFieldDatePurchased, javax.swing.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE))
-                            .addComponent(jComboBoxOrderStatus, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                                .addGroup(jPanelDetailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel1)
+                                    .addComponent(jLabel2)
+                                    .addComponent(jLabel3)
+                                    .addComponent(jLabel4)
+                                    .addComponent(jLabel6))
+                                .addGap(58, 58, 58)
+                                .addGroup(jPanelDetailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jTextFieldId)
+                                    .addComponent(jTextFieldCustomerName)
+                                    .addComponent(jTextFieldCustomerEmail)
+                                    .addGroup(jPanelDetailLayout.createSequentialGroup()
+                                        .addComponent(jTextFieldTotalAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(27, 27, 27)
+                                        .addComponent(jLabel5)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(jTextFieldDatePurchased, javax.swing.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE))
+                                    .addComponent(jComboBoxOrderStatus, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
+                    .addGroup(jPanelDetailLayout.createSequentialGroup()
+                        .addGap(253, 253, 253)
+                        .addComponent(jButtonUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(116, 116, 116)
+                        .addComponent(jButtonDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(83, Short.MAX_VALUE))
         );
         jPanelDetailLayout.setVerticalGroup(
@@ -240,7 +257,11 @@ public class JPanelOrder extends javax.swing.JPanel {
                     .addComponent(jComboBoxOrderStatus, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jPanelItem_Order_Detail, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(41, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanelDetailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButtonUpdate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButtonDelete, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -267,6 +288,8 @@ public class JPanelOrder extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButtonDelete;
+    private javax.swing.JButton jButtonUpdate;
     private javax.swing.JComboBox<String> jComboBoxOrderStatus;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;

@@ -4,6 +4,11 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/Users/baonguyen/Documents/CalPoly/CSC365/Practice/CSC365_FinalProject/src/Connect/DBConnection.java</file>
+            <file>file:/Users/baonguyen/Documents/CalPoly/CSC365/Practice/CSC365_FinalProject/src/Gui/JPanelCustomer.java</file>
+            <file>file:/Users/baonguyen/Documents/CalPoly/CSC365/Practice/CSC365_FinalProject/src/Gui/JPanelOrder.java</file>
+            <file>file:/Users/baonguyen/Documents/CalPoly/CSC365/Practice/CSC365_FinalProject/src/Gui/JPanelBicycle.java</file>
+            <file>file:/Users/baonguyen/Documents/CalPoly/CSC365/Practice/CSC365_FinalProject/src/Connect/DBCreating.java</file>
+            <file>file:/Users/baonguyen/Documents/CalPoly/CSC365/Practice/CSC365_FinalProject/src/Gui/JFrameMain.java</file>
         </group>
     </open-files>
 </project-private>

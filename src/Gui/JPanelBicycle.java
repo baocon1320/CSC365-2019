@@ -73,8 +73,9 @@ public class JPanelBicycle extends javax.swing.JPanel {
         
         this.jTableBicycle.setModel(dtm);
         try {
-            ResultSet rs = statement.executeQuery("select * from Bicycle b, Manufacturer m, "
-                    + "      Category c where b.manufacturer_id = m.mid and b.category_id = c.cid");
+            ResultSet rs = statement.executeQuery("select * from Bicycle b "
+                    + "left join Manufacturer m on  b.manufacturer_id = m.mid "
+                    + "left join Category c on b.category_id = c.cid");
             while (rs.next()) {
                 dtm.addRow(new Object[]{rs.getInt(1), rs.getString(2), rs.getDouble("price"), 
                         rs.getInt("stock"), rs.getString("m.name"), rs.getString("c.name")});
