@@ -5,25 +5,38 @@
  */
 package Gui;
 
+import java.sql.Connection;
+import javax.swing.table.DefaultTableModel;
+import Connect.DBConnection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import javax.swing.JOptionPane;
 import java.util.Arrays;
-import javax.swing.table.DefaultTableModel;
+
 
 /**
  *
- * @author baonguyen
+ * @author baonguyen, jbuelow
  */
 public class JPanelCustomer extends javax.swing.JPanel {
 
-    private DefaultTableModel dtm = new DefaultTableModel(); // For Table
     /**
      * Creates new form JPanelCustomer
      */
-       
+    
+    // Private Properties
+    private DefaultTableModel dtm = new DefaultTableModel(); // For Table
+    Connection connect = DBConnection.getConnection();
+    Statement statement;
     
     public JPanelCustomer() {
         initComponents();
+        try {
+            statement = connect.createStatement();
+        } catch (SQLException e) {
+            
+        }
         loadData();
     }
 
@@ -58,6 +71,18 @@ public class JPanelCustomer extends javax.swing.JPanel {
           //  this.jComboBoxState.addItem(states[i]);
         //}
     }
+    
+    private void reset(){
+        this.jTextFieldCity.setText("");
+        this.jTextFieldEmail.setText("");
+        this.jTextFieldId.setText("");
+        this.jTextFieldName.setText("");
+        this.jTextFieldPhone.setText("");
+        this.jTextFieldZipCode.setText("");
+        this.jTextFiledAddress.setText("");
+        loadTable();
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -271,8 +296,53 @@ public class JPanelCustomer extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private int getStateID() throws SQLException{
+        ResultSet rs = statement.executeQuery("Select sid from State S "
+                    + "where S.name = '" + this.jComboBoxState.getSelectedItem() + "'");
+        rs.next();
+        return rs.getInt(1);
+    }
+    
+    private ResultSet getAddress(int sid) throws SQLException{
+        return statement.executeQuery("Select aid from Address A "
+                    + "Where "
+                    + "A.address = '" + this.jTextFiledAddress.getText() + "' and "
+                    + "A.city = '" + this.jTextFieldCity.getText() + "' and "
+                    + "A.state_id = '" + sid  + "' and "
+                    + "A.zipcode = '" + this.jTextFieldZipCode.getText() + "'");
+    }
+    private int makeAID(int sid) throws SQLException{
+        ResultSet rs = getAddress(sid);
+        if (rs.next()){
+            return rs.getInt(1);
+        }
+        statement.executeUpdate("insert into Address (address, city, state_id, zipcode) values "
+                    + "('" 
+                    + this.jTextFiledAddress.getText() + "', '"
+                    + this.jTextFieldCity.getText() + "', '"
+                    + sid + "', '"
+                    + this.jTextFieldZipCode.getText() + "')");
+        rs = getAddress(sid);
+        rs.next();
+        return rs.getInt(1);
+    }
+    
     private void jButtonAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAddActionPerformed
         // TODO add your handling code here:
+        try {
+            int sid = getStateID();
+            int aid = makeAID(sid);
+            statement.executeUpdate("insert into Customer(name, email, phone, address_id) values ('"
+                + this.jTextFieldName.getText() + "', '"
+                + this.jTextFieldEmail.getText() + "', '"
+                + this.jTextFieldPhone.getText() + "', '"
+                + aid + "')");
+            JOptionPane.showMessageDialog(null, "Add Customer Succeded");
+            reset();
+        } catch (SQLException e) {
+            System.out.println("Error " + e.getErrorCode());
+            JOptionPane.showMessageDialog(null, "Add Customer Failed");
+        }
     }//GEN-LAST:event_jButtonAddActionPerformed
 
 
