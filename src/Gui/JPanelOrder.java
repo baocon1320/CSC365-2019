@@ -5,7 +5,12 @@
  */
 package Gui;
 
+import Connect.DBConnection;
 import Model.OrderStatus;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
 
@@ -23,12 +28,19 @@ public class JPanelOrder extends javax.swing.JPanel {
     
     // List of all orderStatus
     private ArrayList<OrderStatus> orderStatus = new ArrayList<>();
+    Connection connect = DBConnection.getConnection();
+    Statement statement;
     
     /**
      * Creates new form JPanelOrder
      */
     public JPanelOrder() {
         initComponents();
+        try {
+            statement = connect.createStatement();
+        } catch (SQLException e) {
+            
+        }
         loadData();
     }
     
@@ -46,7 +58,7 @@ public class JPanelOrder extends javax.swing.JPanel {
             "Total Amount", "Date Purchased", "Order Status"};
         
         // Headers of Item-Order table
-        String itemOrderheaders[] = {"Bicycle Id", "Bicycle Model", "Order Id",
+        String itemOrderheaders[] = {"Bicycle Id", "Order Id",
             "Price", "Quantity"};
         
         dtmOrder.setColumnIdentifiers(orderHeaders);
@@ -55,21 +67,73 @@ public class JPanelOrder extends javax.swing.JPanel {
         this.jTableOrder.setModel(dtmOrder);
         this.jTableItemOrderDetail.setModel(dtmItemOrder);
     }
+    private void loadItemOrderTable(){
+        String itemOrderHeaders[] = {"Bicycle Id", "Order Id",
+            "Price", "Quantity"};
+        dtmItemOrder.setRowCount(0);
+        dtmItemOrder.setColumnIdentifiers(itemOrderHeaders);
+        try{
+            ResultSet rs = statement.executeQuery("Select * from Item_order");
+            while(rs.next()){
+                dtmItemOrder.addRow( new Object[]{rs.getInt(1),rs.getInt(2),
+                    rs.getDouble(3),rs.getInt(4)});
+            }
+        }
+        catch(SQLException e){
+            System.out.println(e.getMessage());
+            System.exit(1);
+        }
+    }
     
     // Load Headers and row for Bicycle Table
     private void loadOrderTable(){       
         // Set # of row to 0
+        String orderHeaders[] = {"Id", "Customer Name", "Customer Email", 
+            "Total Amount", "Date Purchased", "Order Status"};
         dtmOrder.setRowCount(0);
-        
-        // Load data for table from database 
-        // Need to implement
-        
+        dtmOrder.setColumnIdentifiers(orderHeaders);
+        loadOrderStatus();
+        // Load data for table from database
+        try {
+            ResultSet rs = statement.executeQuery("Select * from Order_info");
+            int i = 0;
+            while (rs.next()) {
+                String s = "";
+               if(rs.getInt(5) == 3){
+                   s = "Cancelled";            
+               }
+               else if(rs.getInt(5) == 2){
+                   s = "Done";
+               }
+               else if(rs.getInt(5) == 1){
+                   s = "Processing";
+               }
+               dtmOrder.addRow(new Object[]{ rs.getInt(1), rs.getString(2),rs.getString(2),
+               rs.getDouble(3),rs.getDate(4),s});
+                
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            System.exit(1);
+        }
+       
     }
     
     // Load the orderStatus to orderStatus ArrayList and load to 
     // JComboBoxOrderStatus
     private void loadOrderStatus() {
         // Need to implement
+        try{
+            ResultSet rs = statement.executeQuery("Select * from Order_status");
+            while(rs.next()){
+                OrderStatus o = new OrderStatus(rs.getInt(1),rs.getString(2));
+                orderStatus.add(o);
+            }
+        }
+        catch(SQLException e){
+            System.out.println(e.getMessage());
+            System.exit(1);
+        }  
     }
     
     /**
