@@ -19,7 +19,7 @@ public class DBConnection {
 
     // For User Credentials
     static final String username = "root";
-    static final String password = "password";
+    static final String password = "";
     static {
         try {
             Class.forName("com.mysql.jdbc.Driver");

@@ -22,7 +22,7 @@ public class DBCreating {
 
     // For User Credentials
     static final String username = "root";
-    static final String password = "password";
+    static final String password = "";
 
     private Statement st;
 
@@ -138,7 +138,7 @@ public class DBCreating {
                 // Insert 3 status to order status table
                 String[] orderStatus = {"Processing", "Done", "Cancel"};
                 for(int i = 0; i < orderStatus.length; i++) {
-                    st.executeUpdate("insert into Order_status(description)"
+                    st.executeUpdate    ("insert into Order_status(description)"
                             + " values('" + orderStatus[i] + "')");
                 }
                 
@@ -171,7 +171,7 @@ public class DBCreating {
             }
 
         } catch (ClassNotFoundException | SQLException e) {
-
+            System.out.println ( "DBCreating: " + e.getMessage () );
         }
     }
 
