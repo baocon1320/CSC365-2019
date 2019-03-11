@@ -18,10 +18,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 /**
- * @author baonguyen
+ * @author baonguyen and wesley benica
  */
 public class JPanelOrder extends javax.swing.JPanel {
 
@@ -63,15 +65,13 @@ public class JPanelOrder extends javax.swing.JPanel {
     private void loadTableHeaders ( ) {
 
         // Headers of Order table
-        String orderHeaders[] = {"Id", "Customer Name", "Customer Email",
+        String[] orderHeaders = {"Id", "Customer Name", "Customer Email",
                 "Total Amount", "Date Purchased", "Order Status"};
 
         // Headers of Item-Order table
-        String itemOrderheaders[] = {"Bicycle Id", "Order Id",
-                "Price", "Quantity"};
-
+        String[] itemOrderHeaders = {"Order ID", "Model", "Unit Price", "Quantity", "Total"};
         dtmOrder.setColumnIdentifiers ( orderHeaders );
-        dtmItemOrder.setColumnIdentifiers ( itemOrderheaders );
+        dtmItemOrder.setColumnIdentifiers ( itemOrderHeaders );
 
         this.jTableOrder.setModel ( dtmOrder );
         this.jTableItemOrderDetail.setModel ( dtmItemOrder );
@@ -84,10 +84,7 @@ public class JPanelOrder extends javax.swing.JPanel {
 
     private void loadItemOrderTable ( int order_id ) {
 
-        //# order_id, bicycle name, price, quantity, total
-        String itemOrderHeaders[] = {"Order ID", "Model", "Unit Price", "Quantity", "Total"};
         dtmItemOrder.setRowCount ( 0 );
-        dtmItemOrder.setColumnIdentifiers ( itemOrderHeaders );
         try {
             StringBuilder sb = new StringBuilder ( "SELECT O.id, B.model, I.price, I.quantity, ( I.price * I" +
                     ".quantity ) AS total\n" +
@@ -119,12 +116,11 @@ public class JPanelOrder extends javax.swing.JPanel {
         // Load data for table from database
         //"Id", "Customer Name", "Customer Email", "Total Amount", "Date Purchased", "Order Status"
         try {
-            ResultSet rs1 = statement.executeQuery ( "        SELECT O.id, C.name, C.email, SUM(I.price * I.quantity)" +
-                    " AS " +
-                    "total, O.date_order, S.description\n" +
-                    "FROM order_info       O       JOIN customer C ON O.customer_id = C.cid\n" +
+            ResultSet rs1 = statement.executeQuery ( "SELECT O.id, C.name, C.email, SUM(I.price * I.quantity)" +
+                    " AS total, O.date_order, S.description\n" +
+                    "FROM order_info O JOIN customer C ON O.customer_id = C.cid\n" +
                     "\tJOIN order_status S ON O.status_id = S.sid\n" +
-                    "    JOIN item_order I ON I.order_id = O.id\n" +
+                    "JOIN item_order I ON I.order_id = O.id\n" +
                     "GROUP BY O.id\n" +
                     "ORDER BY O.date_order DESC;" );
             while ( rs1.next ( ) ) {
@@ -172,20 +168,6 @@ public class JPanelOrder extends javax.swing.JPanel {
         this.jTextFieldDatePurchased.setText ( this.jTableOrder.getValueAt ( row, 4 ).toString ( ) );
         this.jComboBoxOrderStatus.setSelectedItem ( this.jTableOrder.getValueAt ( row, 5 ).toString ( ) );
         loadItemOrderTable ( selectedId );
-
-/*
-        try {
-            ResultSet rs = statement.executeQuery ( "SELECT O.id, B.model, I.price, I.quantity, ( I.price * I" +
-                    ".quantity ) " +
-                    "AS total\n" +
-                    "FROM order_info O JOIN item_order I ON O.id = I.order_id JOIN bicycle B ON I.bicycle_id = B" +
-                    ".bid\n" +
-                    "WHERE O.id = 3" );
-        } catch ( SQLException e ) {
-            System.out.println ( e.getMessage ( ) );
-            System.exit ( 1 );
-        }
-*/
     }//GEN-LAST:event_jTableCustomerMouseClicked
 
     private void jButtonUpdateActionPerformed ( ActionEvent evt ) {
@@ -193,20 +175,39 @@ public class JPanelOrder extends javax.swing.JPanel {
         int selectedRow = this.jTableOrder.getSelectedRow ( );
         if ( selectedRow == -1 ) {
             JOptionPane.showMessageDialog ( null, "Choose an order to modify" );
-        } else if ( jComboBoxOrderStatus.getSelectedIndex ( ) == -1 ) {
-            JOptionPane.showMessageDialog ( null, "Must select an order status" );
         } else {
             try {
-                String query = "UPDATE order_info O\n" +
-                        "SET O.status_id = " + ( jComboBoxOrderStatus.getSelectedIndex ( ) + 1 ) +
-                        "\nWHERE O.id = " + Integer.parseInt ( this.jTextFieldId.getText ( ) );
-                statement.execute ( query );
-                loadOrderTable ( );
-                jTableOrder.setRowSelectionInterval ( selectedRow, selectedRow );
+                String prevOrderStatus = this.jTableOrder.getValueAt ( selectedRow, 5 ).toString ( );
+                if ( jComboBoxOrderStatus.getSelectedItem ( ).equals ( prevOrderStatus ) ) {
+                    JOptionPane.showMessageDialog ( null, "Selected status is the same as previous status" );
+                } else {
+                    int orderId = ( int ) jTableOrder.getValueAt ( selectedRow, 0 );
+                    String query = "UPDATE order_info O\n" +
+                            "SET O.status_id = " + ( jComboBoxOrderStatus.getSelectedIndex ( ) + 1 ) +
+                            "\nWHERE O.id = " + orderId;
+                    statement.execute ( query );
+                    loadOrderTable ( );
+                    jTableOrder.setRowSelectionInterval ( selectedRow, selectedRow );
+
+                    if ( !prevOrderStatus.equals ( "Cancel" ) ) {
+                        returnToInventory ( orderId );
+                    }
+                }
             } catch ( SQLException e ) {
                 System.out.println ( e.getErrorCode ( ) );
                 JOptionPane.showMessageDialog ( null, "Update Failed" );
             }
+        }
+    }
+
+    private void returnToInventory ( int orderId ) {
+
+        for ( int row = 0; row < jTableItemOrderDetail.getRowCount ( ); row++ ) {
+            int bikeId   = ( int ) jTableItemOrderDetail.getValueAt ( row, 0 );
+            int quantity = ( int ) jTableItemOrderDetail.getValueAt ( row, 3 );
+            String query = "UPDATE TABLE bicycle\n" +
+                    "SET stock = stock + " + quantity +
+                    "\nWHERE bicycle.bid = " + bikeId;
         }
     }
 
@@ -286,6 +287,13 @@ public class JPanelOrder extends javax.swing.JPanel {
                 }
         ) );
 
+        jTableOrder.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+            public void valueChanged( ListSelectionEvent event) {
+                jTableOrderMouseClicked ( null );
+            }
+        });
+
+/*
         jTableOrder.addMouseListener ( new MouseAdapter ( ) {
             @Override
             public void mouseClicked ( MouseEvent e ) {
@@ -293,6 +301,7 @@ public class JPanelOrder extends javax.swing.JPanel {
                 jTableOrderMouseClicked ( e );
             }
         } );
+*/
         jScrollPane1.setViewportView ( jTableOrder );
 
         javax.swing.GroupLayout jPanelOrderListLayout = new javax.swing.GroupLayout ( jPanelOrderList );
