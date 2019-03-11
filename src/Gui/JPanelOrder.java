@@ -9,7 +9,6 @@ import Connect.DBConnection;
 import Model.OrderStatus;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
@@ -76,17 +75,30 @@ public class JPanelOrder extends javax.swing.JPanel {
         this.jTableItemOrderDetail.setModel ( dtmItemOrder );
     }
 
-    private void loadItemOrderTable ( ) {
+    private void    loadItemOrderTable () {
+        loadItemOrderTable ( 0 );
+    }
 
-        String itemOrderHeaders[] = {"Bicycle Id", "Order Id",
-                "Price", "Quantity"};
+    private void loadItemOrderTable ( int order_id ) {
+
+        //# order_id, bicycle name, price, quantity, total
+        String itemOrderHeaders[] = {"Order ID", "Model", "Unit Price", "Quantity", "Total"};
         dtmItemOrder.setRowCount ( 0 );
         dtmItemOrder.setColumnIdentifiers ( itemOrderHeaders );
         try {
-            ResultSet rs = statement.executeQuery ( "Select * from Item_order" );
+            StringBuilder sb = new StringBuilder ( "SELECT O.id, B.model, I.price, I.quantity, ( I.price * I" +
+                    ".quantity ) AS total\n" +
+                    "FROM order_info O JOIN item_order I ON O.id = I.order_id JOIN bicycle B ON I.bicycle_id = B" +
+                    ".bid\n" );
+            if ( order_id > 0 ) {
+                sb.append ( "WHERE O.id = " );
+                sb.append ( order_id );
+            }
+            ResultSet rs = statement.executeQuery ( sb.toString () );
             while ( rs.next ( ) ) {
-                dtmItemOrder.addRow ( new Object[] {rs.getInt ( 1 ), rs.getInt ( 2 ),
-                        rs.getDouble ( 3 ), rs.getInt ( 4 )} );
+                dtmItemOrder.addRow ( new Object[] {rs.getInt ( "id" ), rs.getString ( "model" ),
+                        roundPrice ( rs.getDouble ( "price" ) ), rs.getInt ( "quantity" ),
+                        roundPrice ( rs.getDouble ( "total" ) )} );
             }
         } catch ( SQLException e ) {
             System.out.println ( e.getMessage ( ) );
@@ -103,20 +115,31 @@ public class JPanelOrder extends javax.swing.JPanel {
         dtmOrder.setColumnIdentifiers ( orderHeaders );
         loadOrderStatus ( );
         // Load data for table from database
+        //"Id", "Customer Name", "Customer Email", "Total Amount", "Date Purchased", "Order Status"
         try {
-            ResultSet rs1 = statement.executeQuery ( "SELECT O.id, C.name, C.email, O.price, O.date_order, S" +
-                    ".description\nFROM order_status S JOIN order_info O ON S.sid   = O.status_id JOIN customer" +
-                    " C ON O.customer_id = C.cid\nORDER BY O.id" );
+            ResultSet rs1 = statement.executeQuery ( "        SELECT O.id, C.name, C.email, SUM(I.price * I.quantity)" +
+                    " AS " +
+                    "total, O.date_order, S.description\n" +
+                    "FROM order_info       O       JOIN customer C ON O.customer_id = C.cid\n" +
+                    "\tJOIN order_status S ON O.status_id = S.sid\n" +
+                    "    JOIN item_order I ON I.order_id = O.id\n" +
+                    "GROUP BY O.id\n" +
+                    "ORDER BY O.date_order DESC;" );
             while ( rs1.next ( ) ) {
                 dtmOrder.addRow ( new Object[] {rs1.getInt ( "id" ), rs1.getString ( "name" ), rs1.getString ( "email"
-                ),
-                        rs1.getDouble ( "price" ), rs1.getDate ( "date_order" ), rs1.getString ( "description" )} );
+                ), roundPrice ( rs1.getDouble ( "total" ) ),
+                        rs1.getDate ( "date_order" ), rs1.getString ( "description" )} );
             }
         } catch ( SQLException e ) {
             System.out.println ( e.getMessage ( ) );
             System.exit ( 1 );
         }
 
+    }
+
+    private double roundPrice ( double amount ) {
+
+        return ( double ) Math.round ( amount * 100 ) / 100;
     }
 
     // Load the orderStatus to orderStatus ArrayList and load to 
@@ -128,7 +151,7 @@ public class JPanelOrder extends javax.swing.JPanel {
             while ( rs.next ( ) ) {
                 OrderStatus o = new OrderStatus ( rs.getInt ( 1 ), rs.getString ( 2 ) );
                 jComboBoxOrderStatus.addItem ( rs.getString ( 2 ) );
-              //  orderStatus.add ( o );
+                //  orderStatus.add ( o );
             }
         } catch ( SQLException e ) {
             System.out.println ( e.getMessage ( ) );
@@ -145,6 +168,21 @@ public class JPanelOrder extends javax.swing.JPanel {
         this.jTextFieldCustomerEmail.setText ( this.jTableOrder.getValueAt ( row, 2 ).toString ( ) );
         this.jTextFieldTotalAmount.setText ( this.jTableOrder.getValueAt ( row, 3 ).toString ( ) );
         this.jTextFieldDatePurchased.setText ( this.jTableOrder.getValueAt ( row, 4 ).toString ( ) );
+        loadItemOrderTable ( selectedId );
+
+/*
+        try {
+            ResultSet rs = statement.executeQuery ( "SELECT O.id, B.model, I.price, I.quantity, ( I.price * I" +
+                    ".quantity ) " +
+                    "AS total\n" +
+                    "FROM order_info O JOIN item_order I ON O.id = I.order_id JOIN bicycle B ON I.bicycle_id = B" +
+                    ".bid\n" +
+                    "WHERE O.id = 3" );
+        } catch ( SQLException e ) {
+            System.out.println ( e.getMessage ( ) );
+            System.exit ( 1 );
+        }
+*/
     }//GEN-LAST:event_jTableCustomerMouseClicked
 
     private void jButtonUpdateActionPerformed ( ActionEvent evt ) {
