@@ -9,6 +9,7 @@ import Connect.DBConnection;
 import Model.OrderStatus;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
@@ -53,8 +54,9 @@ public class JPanelOrder extends javax.swing.JPanel {
     private void loadData ( ) {
 
         loadTableHeaders ( );
+        loadOrderStatus ( );
         loadOrderTable ( );
-        loadItemOrderTable ( );
+//        loadItemOrderTable ( );
     }
 
     // Load headers of 2 tables
@@ -75,7 +77,8 @@ public class JPanelOrder extends javax.swing.JPanel {
         this.jTableItemOrderDetail.setModel ( dtmItemOrder );
     }
 
-    private void    loadItemOrderTable () {
+    private void loadItemOrderTable ( ) {
+
         loadItemOrderTable ( 0 );
     }
 
@@ -94,7 +97,7 @@ public class JPanelOrder extends javax.swing.JPanel {
                 sb.append ( "WHERE O.id = " );
                 sb.append ( order_id );
             }
-            ResultSet rs = statement.executeQuery ( sb.toString () );
+            ResultSet rs = statement.executeQuery ( sb.toString ( ) );
             while ( rs.next ( ) ) {
                 dtmItemOrder.addRow ( new Object[] {rs.getInt ( "id" ), rs.getString ( "model" ),
                         roundPrice ( rs.getDouble ( "price" ) ), rs.getInt ( "quantity" ),
@@ -113,7 +116,6 @@ public class JPanelOrder extends javax.swing.JPanel {
                 "Total Amount", "Date Purchased", "Order Status"};
         dtmOrder.setRowCount ( 0 );
         dtmOrder.setColumnIdentifiers ( orderHeaders );
-        loadOrderStatus ( );
         // Load data for table from database
         //"Id", "Customer Name", "Customer Email", "Total Amount", "Date Purchased", "Order Status"
         try {
@@ -168,6 +170,7 @@ public class JPanelOrder extends javax.swing.JPanel {
         this.jTextFieldCustomerEmail.setText ( this.jTableOrder.getValueAt ( row, 2 ).toString ( ) );
         this.jTextFieldTotalAmount.setText ( this.jTableOrder.getValueAt ( row, 3 ).toString ( ) );
         this.jTextFieldDatePurchased.setText ( this.jTableOrder.getValueAt ( row, 4 ).toString ( ) );
+        this.jComboBoxOrderStatus.setSelectedItem ( this.jTableOrder.getValueAt ( row, 5 ).toString ( ) );
         loadItemOrderTable ( selectedId );
 
 /*
@@ -187,11 +190,19 @@ public class JPanelOrder extends javax.swing.JPanel {
 
     private void jButtonUpdateActionPerformed ( ActionEvent evt ) {
 
-        if ( this.jTableOrder.getSelectedRow ( ) == -1 ) {
+        int selectedRow = this.jTableOrder.getSelectedRow ( );
+        if ( selectedRow == -1 ) {
             JOptionPane.showMessageDialog ( null, "Choose an order to modify" );
+        } else if ( jComboBoxOrderStatus.getSelectedIndex ( ) == -1 ) {
+            JOptionPane.showMessageDialog ( null, "Must select an order status" );
         } else {
             try {
-                statement.execute ( "Select * from address" );
+                String query = "UPDATE order_info O\n" +
+                        "SET O.status_id = " + ( jComboBoxOrderStatus.getSelectedIndex ( ) + 1 ) +
+                        "\nWHERE O.id = " + Integer.parseInt ( this.jTextFieldId.getText ( ) );
+                statement.execute ( query );
+                loadOrderTable ( );
+                jTableOrder.setRowSelectionInterval ( selectedRow, selectedRow );
             } catch ( SQLException e ) {
                 System.out.println ( e.getErrorCode ( ) );
                 JOptionPane.showMessageDialog ( null, "Update Failed" );
@@ -316,8 +327,11 @@ public class JPanelOrder extends javax.swing.JPanel {
         jLabel5.setText ( "Date Purchased" );
 
         jTextFieldId.setDragEnabled ( false );
-
-        jTextFieldDatePurchased.setEnabled ( false );
+        jTextFieldId.setEditable ( false );
+        jTextFieldCustomerName.setEditable ( false );
+        jTextFieldCustomerEmail.setEditable ( false );
+        jTextFieldDatePurchased.setEditable ( false );
+        jTextFieldTotalAmount.setEditable ( false );
 
         jLabel6.setText ( "OrderStatus" );
 
@@ -358,7 +372,7 @@ public class JPanelOrder extends javax.swing.JPanel {
         );
 
         jButtonUpdate.setText ( "Update" );
-/*
+
         jButtonUpdate.addActionListener ( new ActionListener ( ) {
             public void actionPerformed ( ActionEvent evt ) {
 
@@ -366,7 +380,6 @@ public class JPanelOrder extends javax.swing.JPanel {
             }
         } );
 
-*/
         jButtonDelete.setText ( "Delete" );
 
         javax.swing.GroupLayout jPanelDetailLayout = new javax.swing.GroupLayout ( jPanelDetail );
