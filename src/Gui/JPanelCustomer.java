@@ -12,8 +12,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import javax.swing.JOptionPane;
-import java.util.Arrays;
-
 
 /**
  *
@@ -139,7 +137,7 @@ public class JPanelCustomer extends javax.swing.JPanel {
         jTextFieldZipCode = new javax.swing.JTextField();
         jButtonUpdate = new javax.swing.JButton();
         jButtonAdd = new javax.swing.JButton();
-        jButtonDetele = new javax.swing.JButton();
+        jButtonDelete = new javax.swing.JButton();
         jPanelCustomerList = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTableCustomer = new javax.swing.JTable();
@@ -183,10 +181,10 @@ public class JPanelCustomer extends javax.swing.JPanel {
             }
         });
 
-        jButtonDetele.setText("Delete");
-        jButtonDetele.addActionListener(new java.awt.event.ActionListener() {
+        jButtonDelete.setText("Delete");
+        jButtonDelete.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonDeteleActionPerformed(evt);
+                jButtonDeleteActionPerformed (evt);
             }
         });
 
@@ -221,7 +219,7 @@ public class JPanelCustomer extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 43, Short.MAX_VALUE)
                         .addComponent(jButtonUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(66, 66, 66)
-                        .addComponent(jButtonDetele, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jButtonDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(34, 34, 34))
                     .addComponent(jTextFieldName)
                     .addComponent(jTextFieldEmail)
@@ -275,7 +273,7 @@ public class JPanelCustomer extends javax.swing.JPanel {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButtonUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButtonDetele, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jButtonDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(12, Short.MAX_VALUE))
         );
 
@@ -354,6 +352,7 @@ public class JPanelCustomer extends javax.swing.JPanel {
                     + "A.state_id = '" + sid  + "' and "
                     + "A.zipcode = '" + this.jTextFieldZipCode.getText() + "'");
     }
+
     private int makeAID(int sid) throws SQLException{
         ResultSet rs = getAddress(sid);
         if (rs.next()){
@@ -419,7 +418,7 @@ public class JPanelCustomer extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_jButtonUpdateActionPerformed
 
-    private void jButtonDeteleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDeteleActionPerformed
+    private void jButtonDeleteActionPerformed (java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDeleteActionPerformed
         if (this.jTableCustomer.getSelectedRow() == -1) {
             JOptionPane.showMessageDialog(null, "Choose a customer to delete");
         } else {
@@ -442,7 +441,7 @@ public class JPanelCustomer extends javax.swing.JPanel {
                 JOptionPane.showMessageDialog(null, "Delete Failed");
             }
         }
-    }//GEN-LAST:event_jButtonDeteleActionPerformed
+    }//GEN-LAST:event_jButtonDeleteActionPerformed
 
     private void jTableCustomerMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTableCustomerMouseClicked
         int row = this.jTableCustomer.getSelectedRow();
@@ -460,7 +459,7 @@ public class JPanelCustomer extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonAdd;
-    private javax.swing.JButton jButtonDetele;
+    private javax.swing.JButton jButtonDelete;
     private javax.swing.JButton jButtonUpdate;
     private javax.swing.JComboBox<String> jComboBoxState;
     private javax.swing.JLabel jLabel1;
