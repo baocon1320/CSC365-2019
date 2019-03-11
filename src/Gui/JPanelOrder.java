@@ -48,6 +48,7 @@ public class JPanelOrder extends javax.swing.JPanel {
     private void loadData() {
         loadTableHeaders();
         loadOrderTable();
+        loadItemOrderTable();
     }
     
     // Load headers of 2 tables
@@ -127,8 +128,10 @@ public class JPanelOrder extends javax.swing.JPanel {
             ResultSet rs = statement.executeQuery("Select * from Order_status");
             while(rs.next()){
                 OrderStatus o = new OrderStatus(rs.getInt(1),rs.getString(2));
+                jComboBoxOrderStatus.addItem(rs.getString(2));
                 orderStatus.add(o);
             }
+            
         }
         catch(SQLException e){
             System.out.println(e.getMessage());
