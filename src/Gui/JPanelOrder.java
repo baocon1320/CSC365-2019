@@ -10,13 +10,10 @@ import Model.OrderStatus;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -34,7 +31,6 @@ public class JPanelOrder extends javax.swing.JPanel {
     private DefaultTableModel dtmItemOrder = new DefaultTableModel ( );
 
     // List of all orderStatus
-    private ArrayList<OrderStatus> orderStatus = new ArrayList<> ( );
     Connection connect = DBConnection.getConnection ( );
     Statement  statement;
 
@@ -75,6 +71,11 @@ public class JPanelOrder extends javax.swing.JPanel {
 
         this.jTableOrder.setModel ( dtmOrder );
         this.jTableItemOrderDetail.setModel ( dtmItemOrder );
+    }
+
+    private void clearItemOrderTable ( ) {
+
+        dtmItemOrder.setRowCount ( 0 );
     }
 
     private void loadItemOrderTable ( ) {
@@ -146,10 +147,9 @@ public class JPanelOrder extends javax.swing.JPanel {
         // Need to implement
         try {
             ResultSet rs = statement.executeQuery ( "Select * from Order_status" );
+            jComboBoxOrderStatus.addItem ( "" );
             while ( rs.next ( ) ) {
-                OrderStatus o = new OrderStatus ( rs.getInt ( 1 ), rs.getString ( 2 ) );
                 jComboBoxOrderStatus.addItem ( rs.getString ( 2 ) );
-                //  orderStatus.add ( o );
             }
         } catch ( SQLException e ) {
             System.out.println ( e.getMessage ( ) );
@@ -157,20 +157,22 @@ public class JPanelOrder extends javax.swing.JPanel {
         }
     }
 
-    private void jTableOrderMouseClicked ( java.awt.event.MouseEvent evt ) {//GEN-FIRST
+    private void jTableOrderRowSelectionChanged ( ) {//GEN-FIRST
         // :event_jTableOrderMouseClicked
-        int     row        = this.jTableOrder.getSelectedRow ( );
-        Integer selectedId = ( Integer ) this.jTableOrder.getValueAt ( row, 0 );
-        this.jTextFieldId.setText ( this.jTableOrder.getValueAt ( row, 0 ).toString ( ) );
-        this.jTextFieldCustomerName.setText ( this.jTableOrder.getValueAt ( row, 1 ).toString ( ) );
-        this.jTextFieldCustomerEmail.setText ( this.jTableOrder.getValueAt ( row, 2 ).toString ( ) );
-        this.jTextFieldTotalAmount.setText ( this.jTableOrder.getValueAt ( row, 3 ).toString ( ) );
-        this.jTextFieldDatePurchased.setText ( this.jTableOrder.getValueAt ( row, 4 ).toString ( ) );
-        this.jComboBoxOrderStatus.setSelectedItem ( this.jTableOrder.getValueAt ( row, 5 ).toString ( ) );
-        loadItemOrderTable ( selectedId );
+        if ( jTableOrder.getSelectedRow ( ) != -1 ) {
+            int     row        = this.jTableOrder.getSelectedRow ( );
+            Integer selectedId = ( Integer ) this.jTableOrder.getValueAt ( row, 0 );
+            this.jTextFieldId.setText ( this.jTableOrder.getValueAt ( row, 0 ).toString ( ) );
+            this.jTextFieldCustomerName.setText ( this.jTableOrder.getValueAt ( row, 1 ).toString ( ) );
+            this.jTextFieldCustomerEmail.setText ( this.jTableOrder.getValueAt ( row, 2 ).toString ( ) );
+            this.jTextFieldTotalAmount.setText ( this.jTableOrder.getValueAt ( row, 3 ).toString ( ) );
+            this.jTextFieldDatePurchased.setText ( this.jTableOrder.getValueAt ( row, 4 ).toString ( ) );
+            this.jComboBoxOrderStatus.setSelectedItem ( this.jTableOrder.getValueAt ( row, 5 ).toString ( ) );
+            loadItemOrderTable ( selectedId );
+        }
     }//GEN-LAST:event_jTableCustomerMouseClicked
 
-    private void jButtonUpdateActionPerformed ( ActionEvent evt ) {
+    private void jButtonUpdateActionPerformed ( ) {
 
         int selectedRow = this.jTableOrder.getSelectedRow ( );
         if ( selectedRow == -1 ) {
@@ -180,10 +182,12 @@ public class JPanelOrder extends javax.swing.JPanel {
                 String prevOrderStatus = this.jTableOrder.getValueAt ( selectedRow, 5 ).toString ( );
                 if ( jComboBoxOrderStatus.getSelectedItem ( ).equals ( prevOrderStatus ) ) {
                     JOptionPane.showMessageDialog ( null, "Selected status is the same as previous status" );
+                } else if ( jComboBoxOrderStatus.getSelectedIndex ( ) == 0 ) {
+                    JOptionPane.showMessageDialog ( null, "Please select a status" );
                 } else {
                     int orderId = ( int ) jTableOrder.getValueAt ( selectedRow, 0 );
                     String query = "UPDATE order_info O\n" +
-                            "SET O.status_id = " + ( jComboBoxOrderStatus.getSelectedIndex ( ) + 1 ) +
+                            "SET O.status_id = " + ( jComboBoxOrderStatus.getSelectedIndex ( ) ) +
                             "\nWHERE O.id = " + orderId;
                     statement.execute ( query );
                     loadOrderTable ( );
@@ -203,41 +207,61 @@ public class JPanelOrder extends javax.swing.JPanel {
     private void returnToInventory ( int orderId ) {
 
         for ( int row = 0; row < jTableItemOrderDetail.getRowCount ( ); row++ ) {
-            int bikeId   = ( int ) jTableItemOrderDetail.getValueAt ( row, 0 );
+            String bikeModel   = ( String ) jTableItemOrderDetail.getValueAt ( row, 1 );
             int quantity = ( int ) jTableItemOrderDetail.getValueAt ( row, 3 );
-            String query = "UPDATE TABLE bicycle\n" +
+            String query = "UPDATE bicycle\n" +
                     "SET stock = stock + " + quantity +
-                    "\nWHERE bicycle.bid = " + bikeId;
+                    "\nWHERE bicycle.model = '" + bikeModel + "'";
+            try {
+                statement.execute ( query );
+            } catch ( SQLException e ) {
+                System.out.println ( e.getMessage () );
+                JOptionPane.showMessageDialog ( null, "Delete failed\n" + e.getMessage () );
+            }
         }
     }
 
-/*
-    private void jButtonDeleteActionPerformed(java.awt.event.ActionEvent evt)
-    {//GEN-FIRST:event_jButtonDeleteActionPerformed
-        if (this.jTableCustomer.getSelectedRow() == -1) {
-            JOptionPane.showMessageDialog(null, "Choose a customer to delete");
-        } else {
-            try {
-                ResultSet rs = statement.executeQuery("select address_id from Customer C "
-                        + "where C.cid = " + selectedId);
-                rs.next();
-                int aid = rs.getInt(1);
-                statement.executeUpdate("delete from Customer where cid = " + selectedId);
+    private void jButtonDeleteActionPerformed ( ) {//GEN-FIRST
+        // :event_jButtonDeleteActionPerformed
 
-                rs = statement.executeQuery("select cid from Customer C "
-                        + "where C.address_id = " + aid);
-                if (!rs.next()) {
-                    statement.executeUpdate("delete from Address where aid = " + aid);
+        int selectedRow = this.jTableOrder.getSelectedRow ( );
+        int selectedId  = ( int ) this.jTableOrder.getValueAt ( selectedRow, 0 );
+        if ( selectedRow == -1 ) {
+            JOptionPane.showMessageDialog ( null, "Choose a customer to delete" );
+        } else {
+            Object selectedStatus = jTableOrder.getValueAt ( selectedRow, 5 );
+            if ( selectedStatus.equals ( "Done" ) ) {
+                JOptionPane.showMessageDialog ( null, "Can't delete a completed order" );
+            } else {
+                try {
+                    if ( selectedStatus.equals ( "Processing" ) ) {
+                        JOptionPane.showMessageDialog ( null, "Deleting" );
+                        returnToInventory ( selectedId );
+                    }
+                    statement.executeUpdate ( "delete from order_info where id = " + selectedId );
+                    JOptionPane.showMessageDialog ( null, "Delete Succeded" );
+                    reset ( );
+                } catch ( SQLException e ) {
+                    System.out.println ( e.getErrorCode ( ) );
+                    JOptionPane.showMessageDialog ( null, "Delete Failed" );
                 }
-                JOptionPane.showMessageDialog(null, "Delete Succeded");
-                reset();
-            } catch (SQLException e) {
-                System.out.println(e.getErrorCode());
-                JOptionPane.showMessageDialog(null, "Delete Failed");
             }
         }
+
+        reset ( );
     }//GEN-LAST:event_jButtonDeleteActionPerformed
-*/
+
+    private void reset ( ) {
+
+        loadOrderTable ( );
+        jTextFieldId.setText ( "" );
+        jTextFieldCustomerName.setText ( "" );
+        jTextFieldCustomerEmail.setText ( "" );
+        jTextFieldTotalAmount.setText ( "" );
+        jTextFieldDatePurchased.setText ( "" );
+        jComboBoxOrderStatus.setSelectedIndex ( 0 );
+        clearItemOrderTable ( );
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -287,21 +311,13 @@ public class JPanelOrder extends javax.swing.JPanel {
                 }
         ) );
 
-        jTableOrder.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
-            public void valueChanged( ListSelectionEvent event) {
-                jTableOrderMouseClicked ( null );
-            }
-        });
+        jTableOrder.getSelectionModel ( ).addListSelectionListener ( new ListSelectionListener ( ) {
+            public void valueChanged ( ListSelectionEvent event ) {
 
-/*
-        jTableOrder.addMouseListener ( new MouseAdapter ( ) {
-            @Override
-            public void mouseClicked ( MouseEvent e ) {
-
-                jTableOrderMouseClicked ( e );
+                jTableOrderRowSelectionChanged ( );
             }
         } );
-*/
+
         jScrollPane1.setViewportView ( jTableOrder );
 
         javax.swing.GroupLayout jPanelOrderListLayout = new javax.swing.GroupLayout ( jPanelOrderList );
@@ -342,7 +358,7 @@ public class JPanelOrder extends javax.swing.JPanel {
         jTextFieldDatePurchased.setEditable ( false );
         jTextFieldTotalAmount.setEditable ( false );
 
-        jLabel6.setText ( "OrderStatus" );
+        jLabel6.setText ( "Order Status" );
 
         jPanelItem_Order_Detail.setBackground ( new java.awt.Color ( 255, 255, 255 ) );
         jPanelItem_Order_Detail.setBorder ( javax.swing.BorderFactory.createTitledBorder ( "Item-Order Detail" ) );
@@ -385,12 +401,18 @@ public class JPanelOrder extends javax.swing.JPanel {
         jButtonUpdate.addActionListener ( new ActionListener ( ) {
             public void actionPerformed ( ActionEvent evt ) {
 
-                jButtonUpdateActionPerformed ( evt );
+                jButtonUpdateActionPerformed ( );
             }
         } );
 
         jButtonDelete.setText ( "Delete" );
+        jButtonDelete.addActionListener ( new ActionListener ( ) {
+            @Override
+            public void actionPerformed ( ActionEvent e ) {
 
+                jButtonDeleteActionPerformed ( );
+            }
+        } );
         javax.swing.GroupLayout jPanelDetailLayout = new javax.swing.GroupLayout ( jPanelDetail );
         jPanelDetail.setLayout ( jPanelDetailLayout );
         jPanelDetailLayout.setHorizontalGroup (
