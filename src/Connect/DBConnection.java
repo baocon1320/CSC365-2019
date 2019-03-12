@@ -18,8 +18,10 @@ public class DBConnection {
     static final String DB_Name = ""; // enter your DB name if you want create one
 
     // For User Credentials
+
     static final String username = ""; // username of DB server
     static final String password = ""; // password of DB server
+
     static {
         try {
             Class.forName("com.mysql.jdbc.Driver");

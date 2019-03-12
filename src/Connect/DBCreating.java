@@ -21,8 +21,10 @@ public class DBCreating {
     static final String DB_Name = ""; // enter your DB name if you want create one
 
     // For User Credentials
+
     static final String username = ""; // username of DB server
     static final String password = ""; // password of DB server
+
 
     private Statement st;
 
@@ -139,7 +141,7 @@ public class DBCreating {
                 // Insert 3 status to order status table
                 String[] orderStatus = {"Processing", "Done", "Cancel"};
                 for(int i = 0; i < orderStatus.length; i++) {
-                    st.executeUpdate("insert into Order_status(description)"
+                    st.executeUpdate    ("insert into Order_status(description)"
                             + " values('" + orderStatus[i] + "')");
                 }
                 
@@ -172,7 +174,11 @@ public class DBCreating {
             }
 
         } catch (ClassNotFoundException | SQLException e) {
+<<<<<<< HEAD
             System.out.println(e.getMessage());
+=======
+            System.out.println ( "DBCreating: " + e.getMessage () );
+>>>>>>> 3f4de5ad37817b43878835ba0eab95165dfbdfab
         }
     }
 

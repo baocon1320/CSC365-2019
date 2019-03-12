@@ -12,8 +12,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import javax.swing.JOptionPane;
-import java.util.Arrays;
-
 
 /**
  *
@@ -29,6 +27,7 @@ public class JPanelCustomer extends javax.swing.JPanel {
     private DefaultTableModel dtm = new DefaultTableModel(); // For Table
     Connection connect = DBConnection.getConnection();
     Statement statement;
+    private int selectedId = -1;
     
     public JPanelCustomer() {
         initComponents();
@@ -59,17 +58,43 @@ public class JPanelCustomer extends javax.swing.JPanel {
         
         this.jTableCustomer.setModel(dtm);
         
-        // Load data for table from database
+        try {
+            statement.executeUpdate("create view stateView as "
+                    + "select sid, name as state from State");
+            ResultSet rs = statement.executeQuery("select cid, name, email, phone,"
+                    + "A.address, A.city, S.state, A.zipcode from Customer C "
+                    + "left join Address A on C.address_id = A.aid "
+                    + "left join stateView S on S.sid = A.state_id");
+            
+            while (rs.next()) {
+                dtm.addRow(new Object[]{rs.getInt(1), rs.getString(2),
+                            rs.getString(3), rs.getString(4), rs.getString(5),
+                            rs.getString(6), rs.getString(7), rs.getInt(8)});
+            }
+            statement.executeUpdate("drop view stateView");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            System.exit(1);
+        }
         
     }
     
     // Load State comboBox
     private void loadStates() {
-        // Need to implement
-        //this.jComboBoxState.removeAllItems();
-        //for(int i = 0; i < states.length; i++){
-          //  this.jComboBoxState.addItem(states[i]);
-        //}
+        String curState;
+        
+        this.jComboBoxState.removeAllItems();
+        
+        try {
+            ResultSet states = statement.executeQuery("select name from State");
+            while (states.next()){
+                curState = states.getString("name");
+                this.jComboBoxState.addItem(curState);
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            System.exit(1);
+        }
     }
     
     private void reset(){
@@ -80,6 +105,7 @@ public class JPanelCustomer extends javax.swing.JPanel {
         this.jTextFieldPhone.setText("");
         this.jTextFieldZipCode.setText("");
         this.jTextFiledAddress.setText("");
+        this.jComboBoxState.setSelectedIndex(0);
         loadTable();
     }
     
@@ -111,7 +137,7 @@ public class JPanelCustomer extends javax.swing.JPanel {
         jTextFieldZipCode = new javax.swing.JTextField();
         jButtonUpdate = new javax.swing.JButton();
         jButtonAdd = new javax.swing.JButton();
-        jButtonDetele = new javax.swing.JButton();
+        jButtonDelete = new javax.swing.JButton();
         jPanelCustomerList = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTableCustomer = new javax.swing.JTable();
@@ -142,6 +168,11 @@ public class JPanelCustomer extends javax.swing.JPanel {
         jLabel8.setText("Zip Code");
 
         jButtonUpdate.setText("Update");
+        jButtonUpdate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonUpdateActionPerformed(evt);
+            }
+        });
 
         jButtonAdd.setText("Add");
         jButtonAdd.addActionListener(new java.awt.event.ActionListener() {
@@ -150,7 +181,12 @@ public class JPanelCustomer extends javax.swing.JPanel {
             }
         });
 
-        jButtonDetele.setText("Delete");
+        jButtonDelete.setText("Delete");
+        jButtonDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonDeleteActionPerformed (evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -183,7 +219,7 @@ public class JPanelCustomer extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 43, Short.MAX_VALUE)
                         .addComponent(jButtonUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(66, 66, 66)
-                        .addComponent(jButtonDetele, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jButtonDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(34, 34, 34))
                     .addComponent(jTextFieldName)
                     .addComponent(jTextFieldEmail)
@@ -237,7 +273,7 @@ public class JPanelCustomer extends javax.swing.JPanel {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButtonUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButtonDetele, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jButtonDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(12, Short.MAX_VALUE))
         );
 
@@ -255,6 +291,11 @@ public class JPanelCustomer extends javax.swing.JPanel {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        jTableCustomer.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTableCustomerMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(jTableCustomer);
 
         javax.swing.GroupLayout jPanelCustomerListLayout = new javax.swing.GroupLayout(jPanelCustomerList);
@@ -311,6 +352,7 @@ public class JPanelCustomer extends javax.swing.JPanel {
                     + "A.state_id = '" + sid  + "' and "
                     + "A.zipcode = '" + this.jTextFieldZipCode.getText() + "'");
     }
+
     private int makeAID(int sid) throws SQLException{
         ResultSet rs = getAddress(sid);
         if (rs.next()){
@@ -345,10 +387,79 @@ public class JPanelCustomer extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_jButtonAddActionPerformed
 
+    private void jButtonUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonUpdateActionPerformed
+        // TODO add your handling code here:
+        if(this.jTableCustomer.getSelectedRow() == -1) {
+            JOptionPane.showMessageDialog(null, "Choose a customer to modify");
+        } else {
+            try {
+                statement.executeUpdate("update Customer set "
+                        + "name = '" + this.jTextFieldName.getText() + "', "
+                        + "email = '" + this.jTextFieldEmail.getText() + "', "
+                        + "phone = '" + this.jTextFieldPhone.getText() + "' "
+                        + "where cid = " + selectedId);
+                ResultSet rs = statement.executeQuery("select address_id from Customer C "
+                        + "where C.cid = " + selectedId);
+                rs.next();
+                int aid = rs.getInt(1);
+                statement.executeUpdate("update Address set "
+                        + "address = '" + this.jTextFiledAddress.getText() + "', "
+                        + "city = '" + this.jTextFieldCity.getText() + "', "
+                        + "state_id = '" + getStateID() + "', "
+                        + "zipcode = '" + this.jTextFieldZipCode.getText() + "' "
+                        + "where aid = " + aid);
+                JOptionPane.showMessageDialog(null, "Update Success");
+                reset();
+            } catch (SQLException e) {
+                System.out.println(e.getErrorCode());
+                JOptionPane.showMessageDialog(null, "Update Failed");
+            }
+            
+        }
+    }//GEN-LAST:event_jButtonUpdateActionPerformed
+
+    private void jButtonDeleteActionPerformed (java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDeleteActionPerformed
+        if (this.jTableCustomer.getSelectedRow() == -1) {
+            JOptionPane.showMessageDialog(null, "Choose a customer to delete");
+        } else {
+            try {
+                ResultSet rs = statement.executeQuery("select address_id from Customer C "
+                        + "where C.cid = " + selectedId);
+                rs.next();
+                int aid = rs.getInt(1);
+                statement.executeUpdate("delete from Customer where cid = " + selectedId);
+                
+                rs = statement.executeQuery("select cid from Customer C "
+                        + "where C.address_id = " + aid);
+                if (!rs.next()) {
+                    statement.executeUpdate("delete from Address where aid = " + aid);
+                }
+                JOptionPane.showMessageDialog(null, "Delete Succeded");
+                reset();
+            } catch (SQLException e) {
+                System.out.println(e.getErrorCode());
+                JOptionPane.showMessageDialog(null, "Delete Failed");
+            }
+        }
+    }//GEN-LAST:event_jButtonDeleteActionPerformed
+
+    private void jTableCustomerMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTableCustomerMouseClicked
+        int row = this.jTableCustomer.getSelectedRow();
+        selectedId = (Integer) this.jTableCustomer.getValueAt(row, 0);
+        this.jTextFieldId.setText(this.jTableCustomer.getValueAt(row, 0).toString());
+        this.jTextFieldName.setText(this.jTableCustomer.getValueAt(row,1).toString());
+        this.jTextFieldEmail.setText(this.jTableCustomer.getValueAt(row, 2).toString());
+        this.jTextFieldPhone.setText(this.jTableCustomer.getValueAt(row,3).toString());
+        this.jTextFiledAddress.setText(this.jTableCustomer.getValueAt(row, 4).toString());
+        this.jTextFieldCity.setText(this.jTableCustomer.getValueAt(row, 5).toString());
+        this.jComboBoxState.setSelectedItem(this.jTableCustomer.getValueAt(row, 6).toString());
+        this.jTextFieldZipCode.setText(this.jTableCustomer.getValueAt(row, 7).toString());
+    }//GEN-LAST:event_jTableCustomerMouseClicked
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonAdd;
-    private javax.swing.JButton jButtonDetele;
+    private javax.swing.JButton jButtonDelete;
     private javax.swing.JButton jButtonUpdate;
     private javax.swing.JComboBox<String> jComboBoxState;
     private javax.swing.JLabel jLabel1;
