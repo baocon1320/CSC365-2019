@@ -7,6 +7,7 @@ package Gui;
 
 import Connect.DBConnection;
 import Model.OrderStatus;
+import jdk.nashorn.internal.scripts.JO;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -156,53 +157,55 @@ public class JPanelOrder extends javax.swing.JPanel {
             System.exit ( 1 );
         }
     }
-    private int getCustomerID(){
-        try{
-        ResultSet rs = statement.executeQuery("SELECT cid FROM Customer where"+
-                " Customer.name ="+ this.jTextFieldCustomerName+
-                " Customer.email ="+this.jTextFieldCustomerEmail);
-            rs.next();
-            return rs.getInt(1);
-        }
-        catch(SQLException e){
-            
-        }
-        return -1;
-    }
-    
-    private int getOrderStatus(){
-        try{
-            ResultSet rs = statement.executeQuery("SELECT sid FROM Order_info where"+
-                    " Order_info.description =" + this.jComboBoxOrderStatus.getSelectedItem());
-        }
-        catch(SQLException e){
-            
+
+    private int getCustomerID ( ) {
+
+        try {
+            ResultSet rs = statement.executeQuery ( "SELECT cid FROM Customer where" +
+                    " Customer.name =" + this.jTextFieldCustomerName +
+                    " AND Customer.email =" + this.jTextFieldCustomerEmail );
+            rs.next ( );
+            return rs.getInt ( 1 );
+        } catch ( SQLException e ) {
+
         }
         return -1;
     }
-    private void jButtonAdd(java.awt.event.ActionEvent evt) {                                         
+
+    private int getOrderStatus ( ) {
+
+        try {
+            ResultSet rs = statement.executeQuery ( "SELECT sid FROM Order_info where" +
+                    " Order_info.description =" + this.jComboBoxOrderStatus.getSelectedItem ( ) );
+        } catch ( SQLException e ) {
+
+        }
+        return -1;
+    }
+
+    private void jButtonAdd ( java.awt.event.ActionEvent evt ) {
         // TODO add your handling code here:
         try {
-            int sid = getCustomerID();
-            if(sid == -1){
-                JOptionPane.showMessageDialog(null,"Customer does not exist");
+            int sid = getCustomerID ( );
+            if ( sid == -1 ) {
+                JOptionPane.showMessageDialog ( null, "Customer does not exist" );
                 return;
             }
-            int order_status = getOrderStatus();
-         
-            statement.executeUpdate("insert into Order_info(id,customer_id,price,date_order,status_id) values ('"
-                + this.jTextFieldId.getText() + "', '"
-                + sid+", "
-                + this.jTextFieldTotalAmount.getText() + " , "
-                + this.jTextFieldDatePurchased.getText()+ ", " 
-                + order_status+" )");
-                  
-            JOptionPane.showMessageDialog(null, "Add Customer Succeded");
-        } catch (SQLException e) {
-            System.out.println("Error " + e.getErrorCode());
-            JOptionPane.showMessageDialog(null, "Add Order Failed");
+            int order_status = getOrderStatus ( );
+
+            statement.executeUpdate ( "insert into Order_info(id,customer_id,price,date_order,status_id) values ('"
+                    + this.jTextFieldId.getText ( ) + "', '"
+                    + sid + ", "
+                    + this.jTextFieldTotalAmount.getText ( ) + " , "
+                    + this.jTextFieldDatePurchased.getText ( ) + ", "
+                    + order_status + " )" );
+
+            JOptionPane.showMessageDialog ( null, "Add Customer Succeded" );
+        } catch ( SQLException e ) {
+            System.out.println ( "Error " + e.getErrorCode ( ) );
+            JOptionPane.showMessageDialog ( null, "Add Order Failed" );
         }
-    }        
+    }
 
     private void jTableOrderRowSelectionChanged ( ) {//GEN-FIRST
         // :event_jTableOrderMouseClicked
@@ -227,12 +230,17 @@ public class JPanelOrder extends javax.swing.JPanel {
         } else {
             try {
                 String prevOrderStatus = this.jTableOrder.getValueAt ( selectedRow, 5 ).toString ( );
-                if ( jComboBoxOrderStatus.getSelectedItem ( ).equals ( prevOrderStatus ) ) {
+                if ( !prevOrderStatus.equals ( "Processing" ) ) {
+                    JOptionPane.showMessageDialog ( null, "Can only change processing order" );
+                } else if ( jComboBoxOrderStatus.getSelectedItem ( ).equals ( prevOrderStatus ) ) {
                     JOptionPane.showMessageDialog ( null, "Selected status is the same as previous status" );
                 } else if ( jComboBoxOrderStatus.getSelectedIndex ( ) == 0 ) {
                     JOptionPane.showMessageDialog ( null, "Please select a status" );
                 } else {
                     int orderId = ( int ) jTableOrder.getValueAt ( selectedRow, 0 );
+                    if ( jComboBoxOrderStatus.getSelectedItem ().toString ().equals ( "Cancel" )) {
+                        returnToInventory ( );
+                    }
                     String query = "UPDATE order_info O\n" +
                             "SET O.status_id = " + ( jComboBoxOrderStatus.getSelectedIndex ( ) ) +
                             "\nWHERE O.id = " + orderId;
@@ -240,9 +248,6 @@ public class JPanelOrder extends javax.swing.JPanel {
                     loadOrderTable ( );
                     jTableOrder.setRowSelectionInterval ( selectedRow, selectedRow );
 
-                    if ( !prevOrderStatus.equals ( "Cancel" ) ) {
-                        returnToInventory ( orderId );
-                    }
                 }
             } catch ( SQLException e ) {
                 System.out.println ( e.getErrorCode ( ) );
@@ -251,19 +256,19 @@ public class JPanelOrder extends javax.swing.JPanel {
         }
     }
 
-    private void returnToInventory ( int orderId ) {
+    private void returnToInventory ( ) {
 
         for ( int row = 0; row < jTableItemOrderDetail.getRowCount ( ); row++ ) {
-            String bikeModel   = ( String ) jTableItemOrderDetail.getValueAt ( row, 1 );
-            int quantity = ( int ) jTableItemOrderDetail.getValueAt ( row, 3 );
+            String bikeModel = ( String ) jTableItemOrderDetail.getValueAt ( row, 1 );
+            int    quantity  = ( int ) jTableItemOrderDetail.getValueAt ( row, 3 );
             String query = "UPDATE bicycle\n" +
                     "SET stock = stock + " + quantity +
                     "\nWHERE bicycle.model = '" + bikeModel + "'";
             try {
                 statement.execute ( query );
             } catch ( SQLException e ) {
-                System.out.println ( e.getMessage () );
-                JOptionPane.showMessageDialog ( null, "Delete failed\n" + e.getMessage () );
+                System.out.println ( e.getMessage ( ) );
+                JOptionPane.showMessageDialog ( null, "Delete failed\n" + e.getMessage ( ) );
             }
         }
     }
@@ -283,7 +288,7 @@ public class JPanelOrder extends javax.swing.JPanel {
                 try {
                     if ( selectedStatus.equals ( "Processing" ) ) {
                         JOptionPane.showMessageDialog ( null, "Deleting" );
-                        returnToInventory ( selectedId );
+                        returnToInventory ( );
                     }
                     statement.executeUpdate ( "delete from order_info where id = " + selectedId );
                     JOptionPane.showMessageDialog ( null, "Delete Succeded" );
