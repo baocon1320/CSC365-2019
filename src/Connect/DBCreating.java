@@ -17,12 +17,12 @@ public class DBCreating {
 
     // For Connection
     static final String JBDC_Driver = "com.mysql.jdbc.Driver";
-    static final String DB_URL = "jdbc:mysql://localhost:3306/";
-    static final String DB_Name = "bicycleInventory";
+    static final String DB_URL = "";  //enter your DB_URL here
+    static final String DB_Name = ""; // enter your DB name if you want create one
 
     // For User Credentials
-    static final String username = "root";
-    static final String password = "password";
+    static final String username = ""; // username of DB server
+    static final String password = ""; // password of DB server
 
     private Statement st;
 
@@ -48,6 +48,7 @@ public class DBCreating {
             }
 
             // Check if DB does not exist create one
+            
             if (!(listDB.contains(DB_Name))) {
 
                 st.executeUpdate("create database " + DB_Name);
@@ -88,17 +89,17 @@ public class DBCreating {
                 st.executeUpdate(stateCreate);
 
                 // Insert all states to table State
-                String[] states = {"California,", "Alabama,", "Arkansas,", "Arizona,",
-                    "Alaska,", "Colorado,", "Connecticut,", "Delaware,", "Florida,",
-                    "Georgia,", "Hawaii,", "Idaho,", "Illinois,", "Indiana,", "Iowa,",
-                    "Kansas,", "Kentucky,", "Louisiana,", "Maine,", "Maryland,",
-                    "Massachusetts,", "Michigan,", "Minnesota,", "Mississippi,",
-                    "Missouri,", "Montana,", "Nebraska,", "Nevada,", "New Hampshire,",
-                    "New Jersey,", "New Mexico,", "New York,", "North Carolina,",
-                    "North Dakota,", "Ohio,", "Oklahoma,", "Oregon,", "Pennsylvania,",
-                    "Rhode Island,", "South Carolina,", "South Dakota,", "Tennessee,",
-                    "Texas,", "Utah,", "Vermont,", "Virginia,", "Washington,",
-                    "West Virginia,", "Wisconsin,", "Wyoming"};
+                String[] states = {"California", "Alabama", "Arkansas", "Arizona",
+                    "Alaska", "Colorado", "Connecticut", "Delaware", "Florida",
+                    "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa",
+                    "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland",
+                    "Massachusetts", "Michigan", "Minnesota", "Mississippi",
+                    "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire",
+                    "New Jersey", "New Mexico", "New York", "North Carolina",
+                    "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania",
+                    "Rhode Island", "South Carolina", "South Dakota", "Tennessee",
+                    "Texas", "Utah", "Vermont", "Virginia", "Washington",
+                    "West Virginia", "Wisconsin", "Wyoming"};
 
                 // State names in alphabetical order
                 Arrays.sort(states);
@@ -171,7 +172,7 @@ public class DBCreating {
             }
 
         } catch (ClassNotFoundException | SQLException e) {
-
+            System.out.println(e.getMessage());
         }
     }
 
