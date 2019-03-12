@@ -156,6 +156,53 @@ public class JPanelOrder extends javax.swing.JPanel {
             System.exit ( 1 );
         }
     }
+    private int getCustomerID(){
+        try{
+        ResultSet rs = statement.executeQuery("SELECT cid FROM Customer where"+
+                " Customer.name ="+ this.jTextFieldCustomerName+
+                " Customer.email ="+this.jTextFieldCustomerEmail);
+            rs.next();
+            return rs.getInt(1);
+        }
+        catch(SQLException e){
+            
+        }
+        return -1;
+    }
+    
+    private int getOrderStatus(){
+        try{
+            ResultSet rs = statement.executeQuery("SELECT sid FROM Order_info where"+
+                    " Order_info.description =" + this.jComboBoxOrderStatus.getSelectedItem());
+        }
+        catch(SQLException e){
+            
+        }
+        return -1;
+    }
+    private void jButtonAdd(java.awt.event.ActionEvent evt) {                                         
+        // TODO add your handling code here:
+        try {
+            int sid = getCustomerID();
+            if(sid == -1){
+                JOptionPane.showMessageDialog(null,"Customer does not exist");
+                return;
+            }
+            int order_status = getOrderStatus();
+         
+            statement.executeUpdate("insert into Order_info(id,customer_id,price,date_order,status_id) values ('"
+                + this.jTextFieldId.getText() + "', '"
+                + sid+", "
+                + this.jTextFieldTotalAmount.getText() + " , "
+                + this.jTextFieldDatePurchased.getText()+ ", " 
+                + order_status+" )");
+                  
+            JOptionPane.showMessageDialog(null, "Add Customer Succeded");
+        } catch (SQLException e) {
+            System.out.println("Error " + e.getErrorCode());
+            JOptionPane.showMessageDialog(null, "Add Order Failed");
+        }
+    }        
 
     private void jTableOrderRowSelectionChanged ( ) {//GEN-FIRST
         // :event_jTableOrderMouseClicked
