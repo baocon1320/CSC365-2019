@@ -265,7 +265,7 @@ public class JPanelOrder extends javax.swing.JPanel {
                             "GROUP BY O.id\n" +
                             "ORDER BY O.date_order DESC, total DESC;" ) );
                     jTableOrder.setRowSelectionInterval ( selectedRow, selectedRow );
-                    JOptionPane.showMessageDialog ( null, "Order Canceled" );
+                    JOptionPane.showMessageDialog ( null, "Order Updated" );
                 }
             } catch ( SQLException e ) {
                 System.out.println ( e.getErrorCode ( ) );
