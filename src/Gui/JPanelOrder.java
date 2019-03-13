@@ -6,18 +6,11 @@
 package Gui;
 
 import Connect.DBConnection;
-import Model.OrderStatus;
-import jdk.nashorn.internal.scripts.JO;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -44,9 +37,9 @@ public class JPanelOrder extends javax.swing.JPanel {
         try {
             statement = connect.createStatement();
         } catch (SQLException e) {
-
+            System.out.println ( e.getMessage ( ) );
+            System.exit ( 1 );
         }
-
         loadData();
     }
 
@@ -69,7 +62,6 @@ public class JPanelOrder extends javax.swing.JPanel {
             System.out.println(e.getMessage());
             System.exit(1);
         }
-//        loadItemOrderTable ( );
     }
 
     // Load headers of 2 tables
@@ -132,6 +124,7 @@ public class JPanelOrder extends javax.swing.JPanel {
         // Load data for table from database
         //"Id", "Customer Name", "Customer Email", "Total Amount", "Date Purchased", "Order Status"
         try {
+
             while (rs.next()) {
                 dtmOrder.addRow(new Object[]{rs.getInt("id"), rs.getString("name"), rs.getString("email"
                     ), roundPrice(rs.getDouble("total")),
@@ -149,7 +142,7 @@ public class JPanelOrder extends javax.swing.JPanel {
         return (double) Math.round(amount * 100) / 100;
     }
 
-    // Load the orderStatus to orderStatus ArrayList and load to 
+    // Load the orderStatus to orderStatus ArrayList and load to
     // JComboBoxOrderStatus
     private void loadOrderStatus() {
         // Need to implement
@@ -265,7 +258,6 @@ public class JPanelOrder extends javax.swing.JPanel {
                             + "GROUP BY O.id\n"
                             + "ORDER BY O.date_order DESC, total DESC;"));
                     jTableOrder.setRowSelectionInterval(selectedRow, selectedRow);
-
                 }
             } catch (SQLException e) {
                 System.out.println(e.getErrorCode());
@@ -591,6 +583,7 @@ public class JPanelOrder extends javax.swing.JPanel {
                 .addContainerGap())
         );
 
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -610,7 +603,9 @@ public class JPanelOrder extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanelDetail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18))
+
         );
+        
     }// </editor-fold>//GEN-END:initComponents
 
     private void jTextFieldSeachActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldSeachActionPerformed
@@ -639,7 +634,7 @@ public class JPanelOrder extends javax.swing.JPanel {
         searching();
     }//GEN-LAST:event_jTextFieldSeachKeyPressed
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+    // Variables declaration - do not modify                     
     private javax.swing.JButton jButtonDelete;
     private javax.swing.JButton jButtonUpdate;
     private javax.swing.JComboBox<String> jComboBoxOrderStatus;
@@ -662,5 +657,5 @@ public class JPanelOrder extends javax.swing.JPanel {
     private javax.swing.JTextField jTextFieldId;
     private javax.swing.JTextField jTextFieldSeach;
     private javax.swing.JTextField jTextFieldTotalAmount;
-    // End of variables declaration//GEN-END:variables
+ 
 }

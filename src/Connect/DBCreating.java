@@ -15,7 +15,7 @@ import java.util.Arrays;
  */
 public class DBCreating {
 
-    // For Connection
+  // For Connection
     static final String JBDC_Driver = "com.mysql.jdbc.Driver";
     static final String DB_URL = "jdbc:mysql://ambari-head.csc.calpoly.edu:3306/";  //enter your DB_URL here
     static final String DB_Name = "bnguy123"; // enter your DB name if you want create one
@@ -89,17 +89,17 @@ public class DBCreating {
                 st.executeUpdate(stateCreate);
 
                 // Insert all states to table State
-                String[] states = {"California,", "Alabama,", "Arkansas,", "Arizona,",
-                    "Alaska,", "Colorado,", "Connecticut,", "Delaware,", "Florida,",
-                    "Georgia,", "Hawaii,", "Idaho,", "Illinois,", "Indiana,", "Iowa,",
-                    "Kansas,", "Kentucky,", "Louisiana,", "Maine,", "Maryland,",
-                    "Massachusetts,", "Michigan,", "Minnesota,", "Mississippi,",
-                    "Missouri,", "Montana,", "Nebraska,", "Nevada,", "New Hampshire,",
-                    "New Jersey,", "New Mexico,", "New York,", "North Carolina,",
-                    "North Dakota,", "Ohio,", "Oklahoma,", "Oregon,", "Pennsylvania,",
-                    "Rhode Island,", "South Carolina,", "South Dakota,", "Tennessee,",
-                    "Texas,", "Utah,", "Vermont,", "Virginia,", "Washington,",
-                    "West Virginia,", "Wisconsin,", "Wyoming"};
+                String[] states = {"California", "Alabama", "Arkansas", "Arizona",
+                    "Alaska", "Colorado", "Connecticut", "Delaware", "Florida",
+                    "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa",
+                    "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland",
+                    "Massachusetts", "Michigan", "Minnesota", "Mississippi",
+                    "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire",
+                    "New Jersey", "New Mexico", "New York", "North Carolina",
+                    "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania",
+                    "Rhode Island", "South Carolina", "South Dakota", "Tennessee",
+                    "Texas", "Utah", "Vermont", "Virginia", "Washington",
+                    "West Virginia", "Wisconsin", "Wyoming"};
 
                 // State names in alphabetical order
                 Arrays.sort(states);

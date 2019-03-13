@@ -14,7 +14,7 @@ import java.sql.SQLException;
 
 public class DBConnection {
     private static Connection connect;
-    // For Connection
+     // For Connection
     static final String JBDC_Driver = "com.mysql.jdbc.Driver";
     static final String DB_URL = "jdbc:mysql://ambari-head.csc.calpoly.edu:3306/";  //enter your DB_URL here
     static final String DB_Name = "bnguy123"; // enter your DB name if you want create one
