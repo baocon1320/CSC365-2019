@@ -48,8 +48,8 @@ public class JPanelOrder extends javax.swing.JPanel {
         try {
             statement = connect.createStatement ( );
         } catch ( SQLException e ) {
-    		System.out.println( e.getMessage() );
-    		System.exit( 1 );
+            System.out.println ( e.getMessage ( ) );
+            System.exit ( 1 );
         }
         loadData ( );
     }
@@ -265,7 +265,7 @@ public class JPanelOrder extends javax.swing.JPanel {
                             "GROUP BY O.id\n" +
                             "ORDER BY O.date_order DESC, total DESC;" ) );
                     jTableOrder.setRowSelectionInterval ( selectedRow, selectedRow );
-
+                    JOptionPane.showMessageDialog ( null, "Order Canceled" );
                 }
             } catch ( SQLException e ) {
                 System.out.println ( e.getErrorCode ( ) );
@@ -613,7 +613,7 @@ public class JPanelOrder extends javax.swing.JPanel {
         layout.setVerticalGroup (
                 layout.createParallelGroup ( Alignment.LEADING )
                         .addGroup ( layout.createSequentialGroup ( )
-                                .addContainerGap ()
+                                .addContainerGap ( )
                                 .addComponent ( jPanelSearchBar, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE
                                         , GroupLayout.PREFERRED_SIZE )
                                 .addPreferredGap ( ComponentPlacement.UNRELATED )
