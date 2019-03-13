@@ -90,7 +90,7 @@ public class JPanelOrder extends javax.swing.JPanel {
         try {
             StringBuilder sb = new StringBuilder ( "SELECT O.id, B.model, I.price, I.quantity, ( I.price * I" +
                     ".quantity ) AS total\n" +
-                    "FROM order_info O JOIN item_order I ON O.id = I.order_id JOIN bicycle B ON I.bicycle_id = B" +
+                    "FROM Order_info O JOIN Item_order I ON O.id = I.order_id JOIN bicycle B ON I.bicycle_id = B" +
                     ".bid\n" );
             if ( order_id > 0 ) {
                 sb.append ( "WHERE O.id = " );
@@ -120,11 +120,11 @@ public class JPanelOrder extends javax.swing.JPanel {
         try {
             ResultSet rs1 = statement.executeQuery ( "SELECT O.id, C.name, C.email, SUM(I.price * I.quantity)" +
                     " AS total, O.date_order, S.description\n" +
-                    "FROM order_info O JOIN customer C ON O.customer_id = C.cid\n" +
-                    "\tJOIN order_status S ON O.status_id = S.sid\n" +
-                    "JOIN item_order I ON I.order_id = O.id\n" +
+                    "FROM Order_info O JOIN Customer C ON O.customer_id = C.cid\n" +
+                    "\tJOIN Order_status S ON O.status_id = S.sid\n" +
+                    "JOIN Item_order I ON I.order_id = O.id\n" +
                     "GROUP BY O.id\n" +
-                    "ORDER BY O.date_order DESC;" );
+                    "ORDER BY O.date_order DESC, total DESC;" );
             while ( rs1.next ( ) ) {
                 dtmOrder.addRow ( new Object[] {rs1.getInt ( "id" ), rs1.getString ( "name" ), rs1.getString ( "email"
                 ), roundPrice ( rs1.getDouble ( "total" ) ),
@@ -238,10 +238,10 @@ public class JPanelOrder extends javax.swing.JPanel {
                     JOptionPane.showMessageDialog ( null, "Please select a status" );
                 } else {
                     int orderId = ( int ) jTableOrder.getValueAt ( selectedRow, 0 );
-                    if ( jComboBoxOrderStatus.getSelectedItem ().toString ().equals ( "Cancel" )) {
+                    if ( jComboBoxOrderStatus.getSelectedItem ( ).toString ( ).equals ( "Cancel" ) ) {
                         returnToInventory ( );
                     }
-                    String query = "UPDATE order_info O\n" +
+                    String query = "UPDATE Order_info O\n" +
                             "SET O.status_id = " + ( jComboBoxOrderStatus.getSelectedIndex ( ) ) +
                             "\nWHERE O.id = " + orderId;
                     statement.execute ( query );
@@ -261,7 +261,7 @@ public class JPanelOrder extends javax.swing.JPanel {
         for ( int row = 0; row < jTableItemOrderDetail.getRowCount ( ); row++ ) {
             String bikeModel = ( String ) jTableItemOrderDetail.getValueAt ( row, 1 );
             int    quantity  = ( int ) jTableItemOrderDetail.getValueAt ( row, 3 );
-            String query = "UPDATE bicycle\n" +
+            String query = "UPDATE Bicycle\n" +
                     "SET stock = stock + " + quantity +
                     "\nWHERE bicycle.model = '" + bikeModel + "'";
             try {
@@ -279,7 +279,7 @@ public class JPanelOrder extends javax.swing.JPanel {
         int selectedRow = this.jTableOrder.getSelectedRow ( );
         int selectedId  = ( int ) this.jTableOrder.getValueAt ( selectedRow, 0 );
         if ( selectedRow == -1 ) {
-            JOptionPane.showMessageDialog ( null, "Choose a customer to delete" );
+            JOptionPane.showMessageDialog ( null, "Choose an order to delete" );
         } else {
             Object selectedStatus = jTableOrder.getValueAt ( selectedRow, 5 );
             if ( selectedStatus.equals ( "Done" ) ) {
