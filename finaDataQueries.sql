@@ -1,4 +1,4 @@
-nsert into Manufacturer(name) values('Trek Bicycle');
+insert into Manufacturer(name) values('Trek Bicycle');
 
 insert into Manufacturer(name) values('Calcott Brothers');
 
