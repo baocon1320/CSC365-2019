@@ -9,7 +9,7 @@ LIMIT 10;
 
 SELECT B.model
 FROM BikesGroupedByBID G, Bicycle B
-WHERE G.bikeID = B.bid
+WHERE G.bikeID = B.bid;
 
 ## Top 10 bike models that made the most money
 CREATE VIEW bikeByPrice(bikeID,price) AS
@@ -21,7 +21,7 @@ LIMIT 10;
 
 SELECT B.model
 FROM bikeByPrice P, Bicycle B
-WHERE P.bikeID = B.bid
+WHERE P.bikeID = B.bid;
 
 ##Manufacturer that has the most bikes in stock
 CREATE VIEW Popularity(manufacturer, stock)
@@ -33,14 +33,28 @@ Limit 1;
 
 SELECT M.name
 FROM Manufacturer M, Popularity P
-WHERE M.mid = P.manufacturer
+WHERE M.mid = P.manufacturer;
 
+# Orders over 6 months old that are still processing
+SELECT O.id, C.name, C.email, O.price, O.date_order
+FROM Order_info O JOIN Customer C ON O.customer_id = C.cid 
+JOIN Order_status S ON S.sid = O.status_id
+WHERE O.date_order <= NOW() - INTERVAL 6 MONTH
+AND S.description = "Processing"
+ORDER BY O.date_order;
 
+DROP VIEW NumberOfProcOrdersByCust;
 
+# Customers with more than 2 open orders
+CREATE VIEW NumberOfProcOrdersByCust AS
+SELECT C.cid, COUNT(*) AS open_orders
+FROM Customer C JOIN Order_info O ON C.cid = O.customer_id 
+JOIN Order_status S ON O.status_id = S.sid
+WHERE S.description = "Processing"
+GROUP BY C.cid
+ORDER BY open_orders DESC;
 
-
-
-
-
-
+SELECT C.cid, C.name, C.email, N.open_orders
+FROM NumberOfProcOrdersByCust N NATURAL JOIN Customer C
+WHERE N.open_orders > 2;
 

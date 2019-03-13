@@ -681,6 +681,7 @@ public class JPanelOrder extends javax.swing.JPanel {
                     "\nOR C.name LIKE \"%" + str + "%\"" +
                     "\nOR C.email LIKE \"%" + str + "%\"" +
                     "\nOR O.date_order LIKE \"%" + str + "%\"" +
+                    "\nOR S.description LIKE \"%" + str + "%\"" +
                     "\nGROUP BY O.id\n" +
                     "ORDER BY O.date_order DESC, total DESC;" );
 
