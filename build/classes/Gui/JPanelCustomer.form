@@ -245,6 +245,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Update"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonUpdateActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="jButtonAdd">
           <Properties>
@@ -258,6 +261,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Delete"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonDeteleActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
@@ -312,6 +318,9 @@
                   </Table>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jTableCustomerMouseClicked"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>

@@ -6,7 +6,6 @@
 package Gui;
 
 import Connect.DBConnection;
-import Model.OrderStatus;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,9 +14,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.border.TitledBorder;
+import java.awt.Color;
 
 /**
  * @author baonguyen and wesley benica
@@ -43,7 +48,8 @@ public class JPanelOrder extends javax.swing.JPanel {
         try {
             statement = connect.createStatement ( );
         } catch ( SQLException e ) {
-
+    		System.out.println( e.getMessage() );
+    		System.exit( 1 );
         }
         loadData ( );
     }
@@ -53,7 +59,20 @@ public class JPanelOrder extends javax.swing.JPanel {
 
         loadTableHeaders ( );
         loadOrderStatus ( );
-        loadOrderTable ( );
+        ResultSet rs = null;
+        try {
+            rs = statement.executeQuery ( "SELECT O.id, C.name, C.email, SUM(I.price * I.quantity)" +
+                    " AS total, O.date_order, S.description\n" +
+                    "FROM Order_info O JOIN Customer C ON O.customer_id = C.cid\n" +
+                    "\tJOIN Order_status S ON O.status_id = S.sid\n" +
+                    "JOIN Item_order I ON I.order_id = O.id\n" +
+                    "GROUP BY O.id\n" +
+                    "ORDER BY O.date_order DESC, total DESC;" );
+            loadOrderTable ( rs );
+        } catch ( SQLException e ) {
+            System.out.println ( e.getMessage ( ) );
+            System.exit ( 1 );
+        }
 //        loadItemOrderTable ( );
     }
 
@@ -89,7 +108,7 @@ public class JPanelOrder extends javax.swing.JPanel {
         try {
             StringBuilder sb = new StringBuilder ( "SELECT O.id, B.model, I.price, I.quantity, ( I.price * I" +
                     ".quantity ) AS total\n" +
-                    "FROM order_info O JOIN item_order I ON O.id = I.order_id JOIN bicycle B ON I.bicycle_id = B" +
+                    "FROM Order_info O JOIN Item_order I ON O.id = I.order_id JOIN bicycle B ON I.bicycle_id = B" +
                     ".bid\n" );
             if ( order_id > 0 ) {
                 sb.append ( "WHERE O.id = " );
@@ -108,7 +127,7 @@ public class JPanelOrder extends javax.swing.JPanel {
     }
 
     // Load Headers and row for Bicycle Table
-    private void loadOrderTable ( ) {
+    private void loadOrderTable ( ResultSet rs ) {
         // Set # of row to 0
         String[] orderHeaders = {"Id", "Customer Name", "Customer Email",
                 "Total Amount", "Date Purchased", "Order Status"};
@@ -117,17 +136,10 @@ public class JPanelOrder extends javax.swing.JPanel {
         // Load data for table from database
         //"Id", "Customer Name", "Customer Email", "Total Amount", "Date Purchased", "Order Status"
         try {
-            ResultSet rs1 = statement.executeQuery ( "SELECT O.id, C.name, C.email, SUM(I.price * I.quantity)" +
-                    " AS total, O.date_order, S.description\n" +
-                    "FROM order_info O JOIN customer C ON O.customer_id = C.cid\n" +
-                    "\tJOIN order_status S ON O.status_id = S.sid\n" +
-                    "JOIN item_order I ON I.order_id = O.id\n" +
-                    "GROUP BY O.id\n" +
-                    "ORDER BY O.date_order DESC;" );
-            while ( rs1.next ( ) ) {
-                dtmOrder.addRow ( new Object[] {rs1.getInt ( "id" ), rs1.getString ( "name" ), rs1.getString ( "email"
-                ), roundPrice ( rs1.getDouble ( "total" ) ),
-                        rs1.getDate ( "date_order" ), rs1.getString ( "description" )} );
+            while ( rs.next ( ) ) {
+                dtmOrder.addRow ( new Object[] {rs.getInt ( "id" ), rs.getString ( "name" ), rs.getString ( "email"
+                ), roundPrice ( rs.getDouble ( "total" ) ),
+                        rs.getDate ( "date_order" ), rs.getString ( "description" )} );
             }
         } catch ( SQLException e ) {
             System.out.println ( e.getMessage ( ) );
@@ -141,7 +153,7 @@ public class JPanelOrder extends javax.swing.JPanel {
         return ( double ) Math.round ( amount * 100 ) / 100;
     }
 
-    // Load the orderStatus to orderStatus ArrayList and load to 
+    // Load the orderStatus to orderStatus ArrayList and load to
     // JComboBoxOrderStatus
     private void loadOrderStatus ( ) {
         // Need to implement
@@ -156,53 +168,55 @@ public class JPanelOrder extends javax.swing.JPanel {
             System.exit ( 1 );
         }
     }
-    private int getCustomerID(){
-        try{
-        ResultSet rs = statement.executeQuery("SELECT cid FROM Customer where"+
-                " Customer.name ="+ this.jTextFieldCustomerName+
-                " Customer.email ="+this.jTextFieldCustomerEmail);
-            rs.next();
-            return rs.getInt(1);
-        }
-        catch(SQLException e){
-            
-        }
-        return -1;
-    }
-    
-    private int getOrderStatus(){
-        try{
-            ResultSet rs = statement.executeQuery("SELECT sid FROM Order_info where"+
-                    " Order_info.description =" + this.jComboBoxOrderStatus.getSelectedItem());
-        }
-        catch(SQLException e){
-            
+
+    private int getCustomerID ( ) {
+
+        try {
+            ResultSet rs = statement.executeQuery ( "SELECT cid FROM Customer where" +
+                    " Customer.name =" + this.jTextFieldCustomerName +
+                    " AND Customer.email =" + this.jTextFieldCustomerEmail );
+            rs.next ( );
+            return rs.getInt ( 1 );
+        } catch ( SQLException e ) {
+
         }
         return -1;
     }
-    private void jButtonAdd(java.awt.event.ActionEvent evt) {                                         
+
+    private int getOrderStatus ( ) {
+
+        try {
+            ResultSet rs = statement.executeQuery ( "SELECT sid FROM Order_info where" +
+                    " Order_info.description =" + this.jComboBoxOrderStatus.getSelectedItem ( ) );
+        } catch ( SQLException e ) {
+
+        }
+        return -1;
+    }
+
+    private void jButtonAdd ( java.awt.event.ActionEvent evt ) {
         // TODO add your handling code here:
         try {
-            int sid = getCustomerID();
-            if(sid == -1){
-                JOptionPane.showMessageDialog(null,"Customer does not exist");
+            int sid = getCustomerID ( );
+            if ( sid == -1 ) {
+                JOptionPane.showMessageDialog ( null, "Customer does not exist" );
                 return;
             }
-            int order_status = getOrderStatus();
-         
-            statement.executeUpdate("insert into Order_info(id,customer_id,price,date_order,status_id) values ('"
-                + this.jTextFieldId.getText() + "', '"
-                + sid+", "
-                + this.jTextFieldTotalAmount.getText() + " , "
-                + this.jTextFieldDatePurchased.getText()+ ", " 
-                + order_status+" )");
-                  
-            JOptionPane.showMessageDialog(null, "Add Customer Succeded");
-        } catch (SQLException e) {
-            System.out.println("Error " + e.getErrorCode());
-            JOptionPane.showMessageDialog(null, "Add Order Failed");
+            int order_status = getOrderStatus ( );
+
+            statement.executeUpdate ( "insert into Order_info(id,customer_id,price,date_order,status_id) values ('"
+                    + this.jTextFieldId.getText ( ) + "', '"
+                    + sid + ", "
+                    + this.jTextFieldTotalAmount.getText ( ) + " , "
+                    + this.jTextFieldDatePurchased.getText ( ) + ", "
+                    + order_status + " )" );
+
+            JOptionPane.showMessageDialog ( null, "Add Customer Succeded" );
+        } catch ( SQLException e ) {
+            System.out.println ( "Error " + e.getErrorCode ( ) );
+            JOptionPane.showMessageDialog ( null, "Add Order Failed" );
         }
-    }        
+    }
 
     private void jTableOrderRowSelectionChanged ( ) {//GEN-FIRST
         // :event_jTableOrderMouseClicked
@@ -227,22 +241,31 @@ public class JPanelOrder extends javax.swing.JPanel {
         } else {
             try {
                 String prevOrderStatus = this.jTableOrder.getValueAt ( selectedRow, 5 ).toString ( );
-                if ( jComboBoxOrderStatus.getSelectedItem ( ).equals ( prevOrderStatus ) ) {
+                if ( !prevOrderStatus.equals ( "Processing" ) ) {
+                    JOptionPane.showMessageDialog ( null, "Can only change processing order" );
+                } else if ( jComboBoxOrderStatus.getSelectedItem ( ).equals ( prevOrderStatus ) ) {
                     JOptionPane.showMessageDialog ( null, "Selected status is the same as previous status" );
                 } else if ( jComboBoxOrderStatus.getSelectedIndex ( ) == 0 ) {
                     JOptionPane.showMessageDialog ( null, "Please select a status" );
                 } else {
                     int orderId = ( int ) jTableOrder.getValueAt ( selectedRow, 0 );
-                    String query = "UPDATE order_info O\n" +
+                    if ( jComboBoxOrderStatus.getSelectedItem ( ).toString ( ).equals ( "Cancel" ) ) {
+                        returnToInventory ( );
+                    }
+                    String query = "UPDATE Order_info O\n" +
                             "SET O.status_id = " + ( jComboBoxOrderStatus.getSelectedIndex ( ) ) +
                             "\nWHERE O.id = " + orderId;
                     statement.execute ( query );
-                    loadOrderTable ( );
+                    loadOrderTable ( statement.executeQuery ( "SELECT O.id, C.name, C.email, SUM(I.price * I" +
+                            ".quantity)" +
+                            " AS total, O.date_order, S.description\n" +
+                            "FROM Order_info O JOIN Customer C ON O.customer_id = C.cid\n" +
+                            "\tJOIN Order_status S ON O.status_id = S.sid\n" +
+                            "JOIN Item_order I ON I.order_id = O.id\n" +
+                            "GROUP BY O.id\n" +
+                            "ORDER BY O.date_order DESC, total DESC;" ) );
                     jTableOrder.setRowSelectionInterval ( selectedRow, selectedRow );
 
-                    if ( !prevOrderStatus.equals ( "Cancel" ) ) {
-                        returnToInventory ( orderId );
-                    }
                 }
             } catch ( SQLException e ) {
                 System.out.println ( e.getErrorCode ( ) );
@@ -251,19 +274,19 @@ public class JPanelOrder extends javax.swing.JPanel {
         }
     }
 
-    private void returnToInventory ( int orderId ) {
+    private void returnToInventory ( ) {
 
         for ( int row = 0; row < jTableItemOrderDetail.getRowCount ( ); row++ ) {
-            String bikeModel   = ( String ) jTableItemOrderDetail.getValueAt ( row, 1 );
-            int quantity = ( int ) jTableItemOrderDetail.getValueAt ( row, 3 );
-            String query = "UPDATE bicycle\n" +
+            String bikeModel = ( String ) jTableItemOrderDetail.getValueAt ( row, 1 );
+            int    quantity  = ( int ) jTableItemOrderDetail.getValueAt ( row, 3 );
+            String query = "UPDATE Bicycle\n" +
                     "SET stock = stock + " + quantity +
                     "\nWHERE bicycle.model = '" + bikeModel + "'";
             try {
                 statement.execute ( query );
             } catch ( SQLException e ) {
-                System.out.println ( e.getMessage () );
-                JOptionPane.showMessageDialog ( null, "Delete failed\n" + e.getMessage () );
+                System.out.println ( e.getMessage ( ) );
+                JOptionPane.showMessageDialog ( null, "Delete failed\n" + e.getMessage ( ) );
             }
         }
     }
@@ -274,7 +297,7 @@ public class JPanelOrder extends javax.swing.JPanel {
         int selectedRow = this.jTableOrder.getSelectedRow ( );
         int selectedId  = ( int ) this.jTableOrder.getValueAt ( selectedRow, 0 );
         if ( selectedRow == -1 ) {
-            JOptionPane.showMessageDialog ( null, "Choose a customer to delete" );
+            JOptionPane.showMessageDialog ( null, "Choose an order to delete" );
         } else {
             Object selectedStatus = jTableOrder.getValueAt ( selectedRow, 5 );
             if ( selectedStatus.equals ( "Done" ) ) {
@@ -283,7 +306,7 @@ public class JPanelOrder extends javax.swing.JPanel {
                 try {
                     if ( selectedStatus.equals ( "Processing" ) ) {
                         JOptionPane.showMessageDialog ( null, "Deleting" );
-                        returnToInventory ( selectedId );
+                        returnToInventory ( );
                     }
                     statement.executeUpdate ( "delete from order_info where id = " + selectedId );
                     JOptionPane.showMessageDialog ( null, "Delete Succeded" );
@@ -300,14 +323,26 @@ public class JPanelOrder extends javax.swing.JPanel {
 
     private void reset ( ) {
 
-        loadOrderTable ( );
-        jTextFieldId.setText ( "" );
-        jTextFieldCustomerName.setText ( "" );
-        jTextFieldCustomerEmail.setText ( "" );
-        jTextFieldTotalAmount.setText ( "" );
-        jTextFieldDatePurchased.setText ( "" );
-        jComboBoxOrderStatus.setSelectedIndex ( 0 );
-        clearItemOrderTable ( );
+        try {
+            ResultSet rs = statement.executeQuery ( "SELECT O.id, C.name, C.email, SUM(I.price * I.quantity)" +
+                    " AS total, O.date_order, S.description\n" +
+                    "FROM Order_info O JOIN Customer C ON O.customer_id = C.cid\n" +
+                    "\tJOIN Order_status S ON O.status_id = S.sid\n" +
+                    "JOIN Item_order I ON I.order_id = O.id\n" +
+                    "GROUP BY O.id\n" +
+                    "ORDER BY O.date_order DESC, total DESC;" );
+            loadOrderTable ( rs );
+            jTextFieldId.setText ( "" );
+            jTextFieldCustomerName.setText ( "" );
+            jTextFieldCustomerEmail.setText ( "" );
+            jTextFieldTotalAmount.setText ( "" );
+            jTextFieldDatePurchased.setText ( "" );
+            jComboBoxOrderStatus.setSelectedIndex ( 0 );
+            clearItemOrderTable ( );
+        } catch ( SQLException e ) {
+            System.out.println ( e.getMessage ( ) );
+            System.exit ( 1 );
+        }
     }
 
     /**
@@ -557,32 +592,104 @@ public class JPanelOrder extends javax.swing.JPanel {
                                 .addContainerGap ( ) )
         );
 
+        JPanel jPanelSearchBar = new JPanel ( );
+        jPanelSearchBar.setBackground ( Color.WHITE );
+        jPanelSearchBar.setBorder ( new TitledBorder ( null, "Search", TitledBorder.LEADING, TitledBorder.TOP, null,
+                null ) );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout ( this );
-        this.setLayout ( layout );
         layout.setHorizontalGroup (
-                layout.createParallelGroup ( javax.swing.GroupLayout.Alignment.LEADING )
+                layout.createParallelGroup ( Alignment.LEADING )
                         .addGroup ( layout.createSequentialGroup ( )
                                 .addContainerGap ( )
-                                .addGroup ( layout.createParallelGroup ( javax.swing.GroupLayout.Alignment.LEADING )
-                                        .addComponent ( jPanelOrderList, javax.swing.GroupLayout.Alignment.TRAILING,
-                                                javax.swing.GroupLayout.DEFAULT_SIZE,
-                                                javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE )
-                                        .addComponent ( jPanelDetail, javax.swing.GroupLayout.DEFAULT_SIZE,
-                                                javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE ) )
+                                .addGroup ( layout.createParallelGroup ( Alignment.LEADING )
+                                        .addComponent ( jPanelOrderList, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE
+                                                , 848, Short.MAX_VALUE )
+                                        .addComponent ( jPanelDetail, GroupLayout.DEFAULT_SIZE, 848, Short.MAX_VALUE )
+                                        .addComponent ( jPanelSearchBar, GroupLayout.PREFERRED_SIZE, 445,
+                                                GroupLayout.PREFERRED_SIZE ) )
                                 .addContainerGap ( ) )
         );
         layout.setVerticalGroup (
-                layout.createParallelGroup ( javax.swing.GroupLayout.Alignment.LEADING )
+                layout.createParallelGroup ( Alignment.LEADING )
                         .addGroup ( layout.createSequentialGroup ( )
-                                .addContainerGap ( )
-                                .addComponent ( jPanelOrderList, javax.swing.GroupLayout.PREFERRED_SIZE,
-                                        javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE )
-                                .addPreferredGap ( javax.swing.LayoutStyle.ComponentPlacement.UNRELATED )
-                                .addComponent ( jPanelDetail, javax.swing.GroupLayout.DEFAULT_SIZE,
-                                        javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE )
+                                .addContainerGap ()
+                                .addComponent ( jPanelSearchBar, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE
+                                        , GroupLayout.PREFERRED_SIZE )
+                                .addPreferredGap ( ComponentPlacement.UNRELATED )
+                                .addComponent ( jPanelOrderList, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE
+                                        , GroupLayout.PREFERRED_SIZE )
+                                .addPreferredGap ( ComponentPlacement.UNRELATED )
+                                .addComponent ( jPanelDetail, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE,
+                                        Short.MAX_VALUE )
                                 .addContainerGap ( ) )
         );
+
+        jTextFieldSearchBar = new JTextField ( );
+        jTextFieldSearchBar.setColumns ( 10 );
+        jTextFieldSearchBar.getDocument ( ).addDocumentListener ( new DocumentListener ( ) {
+            @Override
+            public void insertUpdate ( DocumentEvent e ) {
+
+                search ( );
+            }
+
+            @Override
+            public void removeUpdate ( DocumentEvent e ) {
+
+                search ( );
+            }
+
+            @Override
+            public void changedUpdate ( DocumentEvent e ) {
+
+                search ( );
+            }
+        } );
+
+        GroupLayout gl_jPanelSearchBar = new GroupLayout ( jPanelSearchBar );
+        gl_jPanelSearchBar.setHorizontalGroup (
+                gl_jPanelSearchBar.createParallelGroup ( Alignment.LEADING )
+                        .addGroup ( Alignment.TRAILING, gl_jPanelSearchBar.createSequentialGroup ( )
+                                .addContainerGap ( )
+                                .addComponent ( jTextFieldSearchBar, GroupLayout.DEFAULT_SIZE,
+                                        GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE )
+                                .addContainerGap ( ) )
+        );
+        gl_jPanelSearchBar.setVerticalGroup (
+                gl_jPanelSearchBar.createParallelGroup ( Alignment.LEADING )
+                        .addGroup ( gl_jPanelSearchBar.createSequentialGroup ( )
+                                .addComponent ( jTextFieldSearchBar, GroupLayout.PREFERRED_SIZE,
+                                        GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE )
+                                .addContainerGap ( GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE ) )
+        );
+        jPanelSearchBar.setLayout ( gl_jPanelSearchBar );
+        this.setLayout ( layout );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void search ( ) {
+
+        String str = jTextFieldSearchBar.getText ( );
+
+        try {
+            ResultSet rs = statement.executeQuery ( "SELECT O.id, C.name, C.email, SUM(I.price * I.quantity)" +
+                    " AS total, O.date_order, S.description\n" +
+                    "FROM         Order_info       O       JOIN Customer C ON O.customer_id = C.cid\n" +
+                    "\tJOIN Order_status S ON O.status_id = S.sid\n" +
+                    "JOIN Item_order I ON I.order_id = O.id\n" +
+                    "WHERE O.id LIKE \"%" + str + "%\"" +
+                    "\nOR C.name LIKE \"%" + str + "%\"" +
+                    "\nOR C.email LIKE \"%" + str + "%\"" +
+                    "\nOR O.date_order LIKE \"%" + str + "%\"" +
+                    "\nGROUP BY O.id\n" +
+                    "ORDER BY O.date_order DESC, total DESC;" );
+
+            loadOrderTable ( rs );
+        } catch ( SQLException e ) {
+            System.out.println ( e.getMessage ( ) );
+            System.exit ( 1 );
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton           jButtonDelete;
@@ -606,5 +713,5 @@ public class JPanelOrder extends javax.swing.JPanel {
     private javax.swing.JTextField        jTextFieldDatePurchased;
     private javax.swing.JTextField        jTextFieldId;
     private javax.swing.JTextField        jTextFieldTotalAmount;
-    // End of variables declaration//GEN-END:variables
+    private JTextField                    jTextFieldSearchBar;
 }
