@@ -15,15 +15,16 @@ import java.util.Arrays;
  */
 public class DBCreating {
 
-    // For Connection
+  // For Connection
     static final String JBDC_Driver = "com.mysql.jdbc.Driver";
-    static final String DB_URL = "";  //enter your DB_URL here
-    static final String DB_Name = ""; // enter your DB name if you want create one
+
+    static final String DB_URL = "jdbc:mysql://ambari-head.csc.calpoly.edu:3306/";  //enter your DB_URL here
+    static final String DB_Name = "bnguy123"; // enter your DB name if you want create one
 
     // For User Credentials
 
-    static final String username = ""; // username of DB server
-    static final String password = ""; // password of DB server
+    static final String username = "bnguy123"; // username of DB server
+    static final String password = "014508308"; // password of DB server
 
 
     private Statement st;
@@ -174,11 +175,9 @@ public class DBCreating {
             }
 
         } catch (ClassNotFoundException | SQLException e) {
-<<<<<<< HEAD
+
             System.out.println(e.getMessage());
-=======
-            System.out.println ( "DBCreating: " + e.getMessage () );
->>>>>>> 3f4de5ad37817b43878835ba0eab95165dfbdfab
+
         }
     }
 

@@ -14,13 +14,15 @@ import java.sql.SQLException;
 
 public class DBConnection {
     private static Connection connect;
-    static final String DB_URL = ""; //enter your DB_URL here
-    static final String DB_Name = ""; // enter your DB name if you want create one
+     // For Connection
+    static final String JBDC_Driver = "com.mysql.jdbc.Driver";
+    static final String DB_URL = "jdbc:mysql://ambari-head.csc.calpoly.edu:3306/";  //enter your DB_URL here
+    static final String DB_Name = "bnguy123"; // enter your DB name if you want create one
 
     // For User Credentials
 
-    static final String username = ""; // username of DB server
-    static final String password = ""; // password of DB server
+    static final String username = "bnguy123"; // username of DB server
+    static final String password = "014508308"; // password of DB server
 
     static {
         try {
