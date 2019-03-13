@@ -58,3 +58,12 @@ SELECT C.cid, C.name, C.email, N.open_orders
 FROM NumberOfProcOrdersByCust N NATURAL JOIN Customer C
 WHERE N.open_orders > 2;
 
+# Customers who haven't ordered in last 24 months (2 years)
+SELECT C.cid, C.name, C.email, C.phone, MAX(date_order) AS last_order
+FROM Customer C JOIN Order_info O ON C.cid = O.customer_id
+WHERE NOT EXISTS ( SELECT *
+					FROM Customer C1 JOIN Order_info O1 ON C1.cid = O1.customer_id
+                    WHERE C.cid = O1.customer_id AND
+                    O1.date_order >= NOW() - INTERVAL 24 MONTH )
+GROUP BY C.cid, C.name, C.email, C.phone
+ORDER BY date_order DESC;
