@@ -69,7 +69,7 @@ LIMIT 10;
 
 select * from BikesGroupedByBID;
 
-SELECT B.model
+SELECT B.bid, B.model, G.num
 FROM BikesGroupedByBID G, Bicycle B
 WHERE G.bikeID = B.bid;
 
@@ -85,7 +85,7 @@ ORDER BY price desc
 LIMIT 10;
 
 
-SELECT B.bid, B.model, P.price as amount, 
+SELECT B.bid, B.model, P.price as amount
 FROM bikeByPrice P, Bicycle B
 WHERE P.bikeID = B.bid;
 
@@ -99,7 +99,7 @@ ORDER BY stock desc
 Limit 1;
 
 
-SELECT M.name
+SELECT M.mid, M.name, stock
 FROM Manufacturer M, Popularity P
 WHERE M.mid = P.manufacturer;
 
@@ -126,5 +126,53 @@ ORDER BY open_orders DESC;
 SELECT C.cid, C.name, C.email, N.open_orders
 FROM NumberOfProcOrdersByCust N NATURAL JOIN Customer C
 WHERE N.open_orders > 2;
+
+# Customers who haven't ordered in last 24 months (2 years)
+SELECT C.cid, C.name, C.email, C.phone, MAX(date_order) AS last_order
+FROM Customer C JOIN Order_info O ON C.cid = O.customer_id
+WHERE NOT EXISTS ( SELECT *
+					FROM Customer C1 JOIN Order_info O1 ON C1.cid = O1.customer_id
+                    WHERE C.cid = O1.customer_id AND
+                    O1.date_order >= NOW() - INTERVAL 24 MONTH )
+GROUP BY C.cid, C.name, C.email, C.phone
+ORDER BY last_order DESC;
+
+
+select C.cid, C.name, C.email, C.phone, MAX(date_order) AS last_order
+from Customer C, Order_info O
+where C.cid = O.customer_id
+group by C.cid, C.name, C.email, C.phone
+having last_order < NOW() - INTERVAL 24 MONTH
+order by last_order desc;
+
+
+
+# Manufacturers with bike in all categories
+
+select M.mid, M.name from Manufacturer M
+where not exists (select C.cid from Category C
+where not exists (select B.bid from Bicycle B
+where B.category_id = C.cid 
+AND B.manufacturer_id = M.mid));
+
+# Number of bikes per category
+select C.cid, C.name, count(*) as numberOfModels
+from Category C, Bicycle B
+where C.cid = B.category_id
+group by C.cid, C.name;
+
+#Bike with most orders
+
+create view numOrders AS
+select B.model, count(*) as numberOfOrders
+from Bicycle B, Item_order I
+where B.bid = I.bicycle_id
+group by I.bicycle_id
+
+select *
+from numOrders O
+where O.numberOfOrders in (select max(O.numberOfOrders) from numOrders O)#
+
+
 
 

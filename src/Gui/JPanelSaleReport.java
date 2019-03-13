@@ -25,18 +25,20 @@ public class JPanelSaleReport extends javax.swing.JPanel {
     // Private Properties
     private DefaultTableModel dtmHighestSale = new DefaultTableModel();
     private DefaultTableModel dtmHighestBikes = new DefaultTableModel();
-
     private DefaultTableModel dtmAllCate = new DefaultTableModel();
     private DefaultTableModel dtmAllCateAndManu = new DefaultTableModel();
 
     private DefaultTableModel dtmPopularBikes = new DefaultTableModel();
-
     private DefaultTableModel dtmHighestSalesBikes = new DefaultTableModel();
     private DefaultTableModel dtmPopularManufacturers = new DefaultTableModel();
 
     private DefaultTableModel dtmOrdersSixMonths = new DefaultTableModel();
     private DefaultTableModel dtmCustomerTwoOrders = new DefaultTableModel();
     private DefaultTableModel dtmCustomerOrderTwoYears = new DefaultTableModel();
+
+    private DefaultTableModel dtmManuAllCate = new DefaultTableModel();
+    private DefaultTableModel dtmBikesPerCate = new DefaultTableModel();
+    private DefaultTableModel dtmBikesMostOrder = new DefaultTableModel();
 
     Connection connect = DBConnection.getConnection();
     Statement statement;
@@ -60,11 +62,14 @@ public class JPanelSaleReport extends javax.swing.JPanel {
         String allCateHeaders[] = {"Id", "Name", "email", "phone"};
         String allCateAndManuHeaders[] = {"Id", "Name", "email", "phone"};
         String popularBikeHeaders[] = {"Id", "Model", "Number of Bikes sold"};
-        String HighestSaleBikesHeaders[] = {"Id", "Model", "Total Sale Amount"};
+        String highestSaleBikesHeaders[] = {"Id", "Model", "Total Sale Amount"};
         String popularManuHeaders[] = {"Id", "Manufacturers", "Current on Stock"};
-        String OrderSixMonths[] = {"Order Id", "Customer Name", "Customer Email", "Total Price", "Dated Order"};
-        String CustomerTwoOrders[] = {"Customer Id", "Customer Name", "Customer Email", "Number of Open Orders"};
-        String CustomerOrderTwoYears[] = {"Customer Id", "Customer Name", "Customer Email", "Last Order Date"};
+        String orderSixMonthsHeaders[] = {"Order Id", "Customer Name", "Customer Email", "Total Price", "Dated Order"};
+        String customerTwoOrdersHeaders[] = {"Customer Id", "Customer Name", "Customer Email", "Number of Open Orders"};
+        String customerOrderTwoYearsHeaders[] = {"Customer Id", "Customer Name", "Customer Email", "Last Order Date"};
+        String manuAllCateHeaders[] = {"Manufacturer Id", "Manufacturer Name"};
+        String bikePerCateHeaders[] = {"Category Id", "Category Name", "Number of Bikes"};
+        String bikeMostOrderHeaders[] = {"Bike Id", "Bike Name", "Number of Order"};
 
         dtmHighestSale.setColumnIdentifiers(highestSaleHeaders);
         dtmHighestBikes.setColumnIdentifiers(highestBikeHeaders);
@@ -73,13 +78,18 @@ public class JPanelSaleReport extends javax.swing.JPanel {
 
         //Austin
         dtmPopularBikes.setColumnIdentifiers(popularBikeHeaders);
-        dtmHighestSalesBikes.setColumnIdentifiers(HighestSaleBikesHeaders);
+        dtmHighestSalesBikes.setColumnIdentifiers(highestSaleBikesHeaders);
         dtmPopularManufacturers.setColumnIdentifiers(popularManuHeaders);
 
         // Wesley
-        dtmOrdersSixMonths.setColumnIdentifiers(OrderSixMonths);
-        dtmCustomerTwoOrders.setColumnIdentifiers(CustomerTwoOrders);
-        dtmCustomerOrderTwoYears.setColumnIdentifiers(CustomerOrderTwoYears);
+        dtmOrdersSixMonths.setColumnIdentifiers(orderSixMonthsHeaders);
+        dtmCustomerTwoOrders.setColumnIdentifiers(customerTwoOrdersHeaders);
+        dtmCustomerOrderTwoYears.setColumnIdentifiers(customerOrderTwoYearsHeaders);
+
+        // Zoey
+        dtmManuAllCate.setColumnIdentifiers(manuAllCateHeaders);
+        dtmBikesPerCate.setColumnIdentifiers(bikePerCateHeaders);
+        dtmBikesMostOrder.setColumnIdentifiers(bikeMostOrderHeaders);
 
         this.jTableHighestSales.setModel(dtmHighestSale);
         this.jTableHighestBike.setModel(dtmHighestBikes);
@@ -91,6 +101,9 @@ public class JPanelSaleReport extends javax.swing.JPanel {
         this.jTableOrderSixMonths.setModel(dtmOrdersSixMonths);
         this.jTableCustomerTwoOrders.setModel(dtmCustomerTwoOrders);
         this.jTableCustomerTwoOrders2Years.setModel(dtmCustomerOrderTwoYears);
+        this.jTableManuAllCate.setModel(dtmManuAllCate);
+        this.jTableBikesPerCate.setModel(dtmBikesPerCate);
+        this.jTableBikesMostOrder.setModel(dtmBikesMostOrder);
 
         // Select top 10 customers with total order purchased and number of 
         // their orders which order already completed
@@ -253,6 +266,43 @@ public class JPanelSaleReport extends javax.swing.JPanel {
                     rs.getString(3), rs.getString(4)});
             }
 
+            //  Manufacturers with bike in all categories
+            rs = statement.executeQuery("select M.mid, M.name from Manufacturer M\n"
+                    + "where not exists (select C.cid from Category C\n"
+                    + "where not exists (select B.bid from Bicycle B\n"
+                    + "where B.category_id = C.cid \n"
+                    + "AND B.manufacturer_id = M.mid))");
+            while (rs.next()) {
+                dtmManuAllCate.addRow(new Object[]{rs.getInt(1), rs.getString(2)});
+            }
+
+            //  Number of bikes per category
+            rs = statement.executeQuery("select C.cid, C.name, count(*) as numberOfModels\n"
+                    + "from Category C, Bicycle B\n"
+                    + "where C.cid = B.category_id\n"
+                    + "group by C.cid, C.name");
+            while (rs.next()) {
+                dtmBikesPerCate.addRow(new Object[]{rs.getInt(1), rs.getString(2),
+                    rs.getInt(3)});
+            }
+
+            //  Bike that appear in  most number of orders
+            statement.executeUpdate("drop view if exists numOrders");
+
+            statement.executeUpdate("create view numOrders AS\n"
+                    + "select B.bid, B.model, count(*) as numberOfOrders\n"
+                    + "from Bicycle B, Item_order I\n"
+                    + "where B.bid = I.bicycle_id\n"
+                    + "group by I.bicycle_id");
+
+            rs = statement.executeQuery("select *\n"
+                    + "from numOrders O\n"
+                    + "where O.numberOfOrders in (select max(O.numberOfOrders) from numOrders O)");
+            while (rs.next()) {
+                dtmBikesMostOrder.addRow(new Object[]{rs.getInt(1), rs.getString(2),
+                    rs.getInt(3)});
+            }
+
         } catch (SQLException e) {
 
             e.printStackTrace();
@@ -303,6 +353,16 @@ public class JPanelSaleReport extends javax.swing.JPanel {
         jPanel12 = new javax.swing.JPanel();
         jScrollPane11 = new javax.swing.JScrollPane();
         jTableCustomerTwoOrders2Years = new javax.swing.JTable();
+        jPanel11 = new javax.swing.JPanel();
+        jPanel13 = new javax.swing.JPanel();
+        jScrollPane10 = new javax.swing.JScrollPane();
+        jTableManuAllCate = new javax.swing.JTable();
+        jPanel14 = new javax.swing.JPanel();
+        jScrollPane12 = new javax.swing.JScrollPane();
+        jTableBikesPerCate = new javax.swing.JTable();
+        jPanel15 = new javax.swing.JPanel();
+        jScrollPane13 = new javax.swing.JScrollPane();
+        jTableBikesMostOrder = new javax.swing.JTable();
 
         jTabbedPane1.setPreferredSize(new java.awt.Dimension(953, 600));
 
@@ -329,7 +389,7 @@ public class JPanelSaleReport extends javax.swing.JPanel {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 466, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 470, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -442,8 +502,8 @@ public class JPanelSaleReport extends javax.swing.JPanel {
                 .addGroup(jPanelCustomerReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanelCustomerReportLayout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE))
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 478, Short.MAX_VALUE))
+                        .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, 476, Short.MAX_VALUE))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 482, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanelCustomerReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 444, Short.MAX_VALUE)
@@ -525,7 +585,7 @@ public class JPanelSaleReport extends javax.swing.JPanel {
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel6Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 888, Short.MAX_VALUE)
+                .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 892, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel6Layout.setVerticalGroup(
@@ -558,7 +618,7 @@ public class JPanelSaleReport extends javax.swing.JPanel {
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel7Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 888, Short.MAX_VALUE)
+                .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 892, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel7Layout.setVerticalGroup(
@@ -723,6 +783,130 @@ public class JPanelSaleReport extends javax.swing.JPanel {
 
         jTabbedPane1.addTab("Order Report", jPanel8);
 
+        jPanel11.setBackground(new java.awt.Color(255, 255, 255));
+
+        jPanel13.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel13.setBorder(javax.swing.BorderFactory.createTitledBorder("Manufacturers with bike in all categories"));
+
+        jTableManuAllCate.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane10.setViewportView(jTableManuAllCate);
+
+        javax.swing.GroupLayout jPanel13Layout = new javax.swing.GroupLayout(jPanel13);
+        jPanel13.setLayout(jPanel13Layout);
+        jPanel13Layout.setHorizontalGroup(
+            jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel13Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane10, javax.swing.GroupLayout.DEFAULT_SIZE, 902, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel13Layout.setVerticalGroup(
+            jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel13Layout.createSequentialGroup()
+                .addComponent(jScrollPane10, javax.swing.GroupLayout.DEFAULT_SIZE, 159, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        jPanel14.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel14.setBorder(javax.swing.BorderFactory.createTitledBorder("Number of bikes per category"));
+
+        jTableBikesPerCate.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane12.setViewportView(jTableBikesPerCate);
+
+        javax.swing.GroupLayout jPanel14Layout = new javax.swing.GroupLayout(jPanel14);
+        jPanel14.setLayout(jPanel14Layout);
+        jPanel14Layout.setHorizontalGroup(
+            jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel14Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane12, javax.swing.GroupLayout.DEFAULT_SIZE, 902, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel14Layout.setVerticalGroup(
+            jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel14Layout.createSequentialGroup()
+                .addComponent(jScrollPane12, javax.swing.GroupLayout.DEFAULT_SIZE, 159, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        jPanel15.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel15.setBorder(javax.swing.BorderFactory.createTitledBorder("Bike with most number of orders"));
+
+        jTableBikesMostOrder.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane13.setViewportView(jTableBikesMostOrder);
+
+        javax.swing.GroupLayout jPanel15Layout = new javax.swing.GroupLayout(jPanel15);
+        jPanel15.setLayout(jPanel15Layout);
+        jPanel15Layout.setHorizontalGroup(
+            jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel15Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane13, javax.swing.GroupLayout.DEFAULT_SIZE, 902, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel15Layout.setVerticalGroup(
+            jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel15Layout.createSequentialGroup()
+                .addComponent(jScrollPane13, javax.swing.GroupLayout.DEFAULT_SIZE, 159, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
+        jPanel11.setLayout(jPanel11Layout);
+        jPanel11Layout.setHorizontalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel11Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel13, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel14, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel15, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel11Layout.setVerticalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel11Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel13, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel14, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel15, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(150, Short.MAX_VALUE))
+        );
+
+        jTabbedPane1.addTab("Bike Report", jPanel11);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -745,7 +929,11 @@ public class JPanelSaleReport extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
+    private javax.swing.JPanel jPanel11;
     private javax.swing.JPanel jPanel12;
+    private javax.swing.JPanel jPanel13;
+    private javax.swing.JPanel jPanel14;
+    private javax.swing.JPanel jPanel15;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -756,7 +944,10 @@ public class JPanelSaleReport extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel9;
     private javax.swing.JPanel jPanelCustomerReport;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane10;
     private javax.swing.JScrollPane jScrollPane11;
+    private javax.swing.JScrollPane jScrollPane12;
+    private javax.swing.JScrollPane jScrollPane13;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
@@ -769,11 +960,14 @@ public class JPanelSaleReport extends javax.swing.JPanel {
     private javax.swing.JPanel jTabbedPanel2;
     private javax.swing.JTable jTableAllCateAndManu;
     private javax.swing.JTable jTableAllCategory;
+    private javax.swing.JTable jTableBikesMostOrder;
+    private javax.swing.JTable jTableBikesPerCate;
     private javax.swing.JTable jTableCustomerTwoOrders;
     private javax.swing.JTable jTableCustomerTwoOrders2Years;
     private javax.swing.JTable jTableHighestBike;
     private javax.swing.JTable jTableHighestSales;
     private javax.swing.JTable jTableHighestSalesBikes;
+    private javax.swing.JTable jTableManuAllCate;
     private javax.swing.JTable jTableOrderSixMonths;
     private javax.swing.JTable jTablePopularBikes;
     private javax.swing.JTable jTablePopularManufacturer;

@@ -22,37 +22,14 @@ public class JFrameMain extends javax.swing.JFrame {
      * Creates new form NewJFrame
      */
     
-     // Private Properties
-    //private DefaultTableModel dtm = new DefaultTableModel();
-    //static Connection connect;
     
     public JFrameMain() throws MalformedURLException, IOException {
-           initComponents();
-           
+           initComponents();          
            // Check if DB exist, if not create one
            DBCreating.DBCreating();
            
            ImageIcon icon = new ImageIcon("src/Image/background.jpg");
            this.jLabel3.setIcon(icon);
-            
-           /*
-        String headers[] = {"Id", "Model", "Price"};
-        dtm.setColumnIdentifiers(headers);
-        this.jTable1.setModel(dtm);
-        connect = DBConnection.getConnection();
-         try {
-            ResultSet rs;
-            Statement statement = connect.createStatement();
-            rs = statement.executeQuery("select * from Bicycle");
-            while(rs.next()){
-                System.out.println("bicycle name is: " + rs.getString(2));
-                dtm.addRow(new  Object[]{rs.getInt(1), rs.getString(2), rs.getInt(3)});
-            }
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-           */
     }
 
     /**
