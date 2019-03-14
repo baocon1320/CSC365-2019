@@ -1,8 +1,25 @@
 Log file for documenting contributions to the project.
 
+All team members working together on designing the Database and the slide for presentation
+
 Austin Woo's contributions
 -Implemented the Add Order page, inserted all the UI elements as well as all the functions pertaining to that page.
 -Implemented UI elements from the main page to connect to the Add Order page via a JButton
 -Implemented part of the Order page, initially wrote the queries that displayed all of the orders and item orders, but
  was overwritten due to mistakes on Austin's part.
+-Implement three complex queries for the Sale report
 -Wrote description file
+
+Bao Nguyen's contributions
+- Implemented the Category, Manufacturer and Bicycle management Page
+- Draw the diagram for the DB
+- Implement three complex queries for the Sale report
+
+Wesley Benica's contributions
+- Implemented the order Update and Delete page
+- Implemented the searching bar
+- Implement three complex queries for the Sale report
+
+Zoey Buelow's contributions
+- Implemented the Customer Management page
+- Implement three complex queries for the Sale report
