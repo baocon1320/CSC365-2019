@@ -436,8 +436,14 @@ public class JPanelOrder extends javax.swing.JPanel {
             }
         });
         jTextFieldSeach.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                jTextFieldSeachKeyTyped(evt);
+            }
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 jTextFieldSeachKeyPressed(evt);
+            }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextFieldSeachKeyReleased(evt);
             }
         });
 
@@ -644,7 +650,7 @@ public class JPanelOrder extends javax.swing.JPanel {
 
     private void jTextFieldSeachKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextFieldSeachKeyPressed
         // TODO add your handling code here:
-        searching();
+        
     }//GEN-LAST:event_jTextFieldSeachKeyPressed
 
     private void jTextFieldSeachFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextFieldSeachFocusGained
@@ -661,6 +667,16 @@ public class JPanelOrder extends javax.swing.JPanel {
             jTextFieldSeach.setText("Searching");
         }
     }//GEN-LAST:event_jTextFieldSeachFocusLost
+
+    private void jTextFieldSeachKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextFieldSeachKeyTyped
+        // TODO add your handling code here:
+        
+    }//GEN-LAST:event_jTextFieldSeachKeyTyped
+
+    private void jTextFieldSeachKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextFieldSeachKeyReleased
+        // TODO add your handling code here:
+        searching();
+    }//GEN-LAST:event_jTextFieldSeachKeyReleased
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonDelete;
