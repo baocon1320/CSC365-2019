@@ -20,6 +20,6 @@ Wesley Benica's contributions
 - Implemented the searching bar
 - Implement three complex queries for the Sale report
 
-Zoey Buelow's contributions
+Joey Buelow's contributions
 - Implemented the Customer Management page
 - Implement three complex queries for the Sale report
