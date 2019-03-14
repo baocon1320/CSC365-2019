@@ -1,0 +1,8 @@
+Log file for documenting contributions to the project.
+
+Austin Woo's contributions
+-Implemented the Add Order page, inserted all the UI elements as well as all the functions pertaining to that page.
+-Implemented UI elements from the main page to connect to the Add Order page via a JButton
+-Implemented part of the Order page, initially wrote the queries that displayed all of the orders and item orders, but
+ was overwritten due to mistakes on Austin's part.
+-Wrote description file
