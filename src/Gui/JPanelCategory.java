@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 /**
  *
  * @author baonguyen
+ * Manage Category: Add New, Update, Delete
  */
 public class JPanelCategory extends javax.swing.JPanel {
 

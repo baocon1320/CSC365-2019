@@ -15,6 +15,7 @@ import javax.swing.ImageIcon;
 /**
  *
  * @author baonguyen
+ * Main Frame of Application
  */
 public class JFrameMain extends javax.swing.JFrame {
 
@@ -56,6 +57,8 @@ public class JFrameMain extends javax.swing.JFrame {
         jButtonBicycleOrder = new javax.swing.JButton();
         jToolBarSaleReport = new javax.swing.JToolBar();
         jButtonBicycleSaleReport = new javax.swing.JButton();
+        jToolBarOrder1 = new javax.swing.JToolBar();
+        jButtonBicycleOrderAdd = new javax.swing.JButton();
         jTabbedPaneMain = new javax.swing.JTabbedPane();
         jPanelMain = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
@@ -171,6 +174,23 @@ public class JFrameMain extends javax.swing.JFrame {
         });
         jToolBarSaleReport.add(jButtonBicycleSaleReport);
 
+        jToolBarOrder1.setBackground(new java.awt.Color(255, 255, 255));
+        jToolBarOrder1.setFloatable(false);
+
+        jButtonBicycleOrderAdd.setBackground(new java.awt.Color(255, 255, 255));
+        jButtonBicycleOrderAdd.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
+        jButtonBicycleOrderAdd.setText("Add Order");
+        jButtonBicycleOrderAdd.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        jButtonBicycleOrderAdd.setBorderPainted(false);
+        jButtonBicycleOrderAdd.setContentAreaFilled(false);
+        jButtonBicycleOrderAdd.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jButtonBicycleOrderAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonBicycleOrderAddActionPerformed(evt);
+            }
+        });
+        jToolBarOrder1.add(jButtonBicycleOrderAdd);
+
         javax.swing.GroupLayout jPanelMenuLayout = new javax.swing.GroupLayout(jPanelMenu);
         jPanelMenu.setLayout(jPanelMenuLayout);
         jPanelMenuLayout.setHorizontalGroup(
@@ -187,7 +207,8 @@ public class JFrameMain extends javax.swing.JFrame {
                     .addComponent(jToolBarBicycle, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jToolBarCustomer, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jToolBarOrder, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jToolBarSaleReport, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jToolBarSaleReport, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jToolBarOrder1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanelMenuLayout.setVerticalGroup(
@@ -207,6 +228,8 @@ public class JFrameMain extends javax.swing.JFrame {
                 .addComponent(jToolBarCustomer, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jToolBarOrder, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jToolBarOrder1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jToolBarSaleReport, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -302,6 +325,13 @@ public class JFrameMain extends javax.swing.JFrame {
         this.jTabbedPaneMain.add("Sale Report Manager", saleReportManager);
     }//GEN-LAST:event_jButtonBicycleSaleReportActionPerformed
 
+    private void jButtonBicycleOrderAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBicycleOrderAddActionPerformed
+        // TODO add your handling code here:
+        JPanelAddOrder addOrderManager = new JPanelAddOrder();
+        this.jTabbedPaneMain.removeAll();
+        this.jTabbedPaneMain.add("Add New Order", addOrderManager);
+    }//GEN-LAST:event_jButtonBicycleOrderAddActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -345,6 +375,7 @@ public class JFrameMain extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonBicycle;
     private javax.swing.JButton jButtonBicycleOrder;
+    private javax.swing.JButton jButtonBicycleOrderAdd;
     private javax.swing.JButton jButtonBicycleSaleReport;
     private javax.swing.JButton jButtonCategory;
     private javax.swing.JButton jButtonCustomer;
@@ -360,6 +391,7 @@ public class JFrameMain extends javax.swing.JFrame {
     private javax.swing.JToolBar jToolBarCustomer;
     private javax.swing.JToolBar jToolBarManufacturer;
     private javax.swing.JToolBar jToolBarOrder;
+    private javax.swing.JToolBar jToolBarOrder1;
     private javax.swing.JToolBar jToolBarSaleReport;
     // End of variables declaration//GEN-END:variables
 }

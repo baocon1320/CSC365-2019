@@ -8,6 +8,7 @@ package Gui;
 /**
  *
  * @author baonguyen
+ * Manage Bicycle: Add new, update, delete
  */
 
 import java.sql.Connection;

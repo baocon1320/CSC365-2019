@@ -161,17 +161,51 @@ from Category C, Bicycle B
 where C.cid = B.category_id
 group by C.cid, C.name;
 
-#Bike with most orders
+# Bike that appear in  most number of orders
+drop view if exists numOrders;
 
 create view numOrders AS
-select B.model, count(*) as numberOfOrders
+select B.bid, B.model, count(*) as numberOfOrders
 from Bicycle B, Item_order I
 where B.bid = I.bicycle_id
-group by I.bicycle_id
+group by I.bicycle_id;
 
 select *
 from numOrders O
-where O.numberOfOrders in (select max(O.numberOfOrders) from numOrders O)#
+where O.numberOfOrders in (select max(O.numberOfOrders) from numOrders O);
+
+
+
+#Trigger When insert in Item_order
+
+delimiter $$
+drop trigger if exists item_order_insert$$
+create trigger item_order_insert
+after insert on Item_order
+	for each row 
+        begin
+			update Bicycle set stock = stock - new.quantity where bid = new.bicycle_id;
+		end$$
+delimiter ;
+
+delimiter $$
+drop trigger if exists bicycle_stock_update$$
+create trigger bicycle_stock_update
+before update on Bicycle
+	for each row 
+		begin
+			if(new.stock < 0) then
+				signal sqlstate '12345';
+			end if;
+		end $$
+delimiter ;
+
+
+
+
+
+
+
 
 
 

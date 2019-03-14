@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 /**
  *
  * @author baonguyen, jbuelow
+ * Manage Customer: Add new, Update, Delete
  */
 public class JPanelCustomer extends javax.swing.JPanel {
 

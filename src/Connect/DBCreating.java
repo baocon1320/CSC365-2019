@@ -12,20 +12,20 @@ import java.util.Arrays;
 /**
  *
  * @author baonguyen
+ * This file for creating a new DB if your server doesn't have one
+ * All SQl statement of creating table and trigger are here
  */
 public class DBCreating {
 
-  // For Connection
+    // For Connection
     static final String JBDC_Driver = "com.mysql.jdbc.Driver";
 
     static final String DB_URL = "jdbc:mysql://ambari-head.csc.calpoly.edu:3306/";  //enter your DB_URL here
     static final String DB_Name = "bnguy123"; // enter your DB name if you want create one
 
     // For User Credentials
-
     static final String username = "bnguy123"; // username of DB server
     static final String password = "014508308"; // password of DB server
-
 
     private Statement st;
 
@@ -51,7 +51,6 @@ public class DBCreating {
             }
 
             // Check if DB does not exist create one
-            
             if (!(listDB.contains(DB_Name))) {
 
                 st.executeUpdate("create database " + DB_Name);
@@ -138,14 +137,13 @@ public class DBCreating {
                         + "sid integer auto_increment primary key,"
                         + "description varchar(20) not null unique)";
                 st.executeUpdate(orderStatusCreate);
-                
+
                 // Insert 3 status to order status table
                 String[] orderStatus = {"Processing", "Done", "Cancel"};
-                for(int i = 0; i < orderStatus.length; i++) {
-                    st.executeUpdate    ("insert into Order_status(description)"
+                for (int i = 0; i < orderStatus.length; i++) {
+                    st.executeUpdate("insert into Order_status(description)"
                             + " values('" + orderStatus[i] + "')");
                 }
-                
 
                 // Create table Order
                 String orderCreate = "create table Order_info ("
@@ -171,6 +169,16 @@ public class DBCreating {
                         + "foreign key (order_id) references Order_info(id) "
                         + "on delete cascade on update cascade)";
                 st.executeUpdate(item_orderCreate);
+
+                // Create trigger when add new oder then decreasing the stock of
+                // a bike
+                String updateStockTrigger = "create trigger item_order_insert\n"
+                        + "after insert on Item_order\n"
+                        + "for each row \n"
+                        + "begin\n"
+                        + "update Bicycle set stock = stock - new.quantity where bid = new.bicycle_id;\n"
+                        + "end;";
+                st.executeUpdate(updateStockTrigger);
 
             }
 

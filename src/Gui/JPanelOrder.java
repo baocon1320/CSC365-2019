@@ -6,15 +6,22 @@
 package Gui;
 
 import Connect.DBConnection;
+import Model.OrderStatus;
+import jdk.nashorn.internal.scripts.JO;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 /**
  * @author baonguyen and wesley benica
+ * Order Management: Update status of an order, delete an order
  */
 public class JPanelOrder extends javax.swing.JPanel {
 
@@ -37,9 +44,9 @@ public class JPanelOrder extends javax.swing.JPanel {
         try {
             statement = connect.createStatement();
         } catch (SQLException e) {
-            System.out.println ( e.getMessage ( ) );
-            System.exit ( 1 );
+
         }
+
         loadData();
     }
 
@@ -62,6 +69,7 @@ public class JPanelOrder extends javax.swing.JPanel {
             System.out.println(e.getMessage());
             System.exit(1);
         }
+//        loadItemOrderTable ( );
     }
 
     // Load headers of 2 tables
@@ -124,7 +132,6 @@ public class JPanelOrder extends javax.swing.JPanel {
         // Load data for table from database
         //"Id", "Customer Name", "Customer Email", "Total Amount", "Date Purchased", "Order Status"
         try {
-
             while (rs.next()) {
                 dtmOrder.addRow(new Object[]{rs.getInt("id"), rs.getString("name"), rs.getString("email"
                     ), roundPrice(rs.getDouble("total")),
@@ -142,7 +149,7 @@ public class JPanelOrder extends javax.swing.JPanel {
         return (double) Math.round(amount * 100) / 100;
     }
 
-    // Load the orderStatus to orderStatus ArrayList and load to
+    // Load the orderStatus to orderStatus ArrayList and load to 
     // JComboBoxOrderStatus
     private void loadOrderStatus() {
         // Need to implement
@@ -258,6 +265,7 @@ public class JPanelOrder extends javax.swing.JPanel {
                             + "GROUP BY O.id\n"
                             + "ORDER BY O.date_order DESC, total DESC;"));
                     jTableOrder.setRowSelectionInterval(selectedRow, selectedRow);
+
                 }
             } catch (SQLException e) {
                 System.out.println(e.getErrorCode());
@@ -414,6 +422,14 @@ public class JPanelOrder extends javax.swing.JPanel {
         jScrollPane1.setViewportView(jTableOrder);
 
         jTextFieldSeach.setText("Searching");
+        jTextFieldSeach.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                jTextFieldSeachFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                jTextFieldSeachFocusLost(evt);
+            }
+        });
         jTextFieldSeach.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTextFieldSeachActionPerformed(evt);
@@ -442,9 +458,9 @@ public class JPanelOrder extends javax.swing.JPanel {
             jPanelOrderListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelOrderListLayout.createSequentialGroup()
                 .addComponent(jTextFieldSeach, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanelDetail.setBackground(new java.awt.Color(255, 255, 255));
@@ -583,7 +599,6 @@ public class JPanelOrder extends javax.swing.JPanel {
                 .addContainerGap())
         );
 
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -599,13 +614,11 @@ public class JPanelOrder extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanelOrderList, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanelOrderList, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanelDetail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18))
-
+                .addContainerGap(33, Short.MAX_VALUE))
         );
-        
     }// </editor-fold>//GEN-END:initComponents
 
     private void jTextFieldSeachActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldSeachActionPerformed
@@ -634,7 +647,22 @@ public class JPanelOrder extends javax.swing.JPanel {
         searching();
     }//GEN-LAST:event_jTextFieldSeachKeyPressed
 
-    // Variables declaration - do not modify                     
+    private void jTextFieldSeachFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextFieldSeachFocusGained
+        // TODO add your handling code here:
+        if (jTextFieldSeach.getText().equals("Searching")) {
+            jTextFieldSeach.setText("");
+            //jTextFieldSeach.setForeground(Color.BLACK);
+        }
+    }//GEN-LAST:event_jTextFieldSeachFocusGained
+
+    private void jTextFieldSeachFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextFieldSeachFocusLost
+        // TODO add your handling code here:
+        if (jTextFieldSeach.getText().isEmpty()) {           
+            jTextFieldSeach.setText("Searching");
+        }
+    }//GEN-LAST:event_jTextFieldSeachFocusLost
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonDelete;
     private javax.swing.JButton jButtonUpdate;
     private javax.swing.JComboBox<String> jComboBoxOrderStatus;
@@ -657,5 +685,5 @@ public class JPanelOrder extends javax.swing.JPanel {
     private javax.swing.JTextField jTextFieldId;
     private javax.swing.JTextField jTextFieldSeach;
     private javax.swing.JTextField jTextFieldTotalAmount;
- 
+    // End of variables declaration//GEN-END:variables
 }

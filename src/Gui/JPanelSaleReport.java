@@ -15,7 +15,8 @@ import javax.swing.JOptionPane;
 
 /**
  *
- * @author baonguyen
+ * @author baonguyen, Zoey Buelow, Austin Woo, Wesley Benica
+ * Complex queries to get the significant info from data 
  */
 public class JPanelSaleReport extends javax.swing.JPanel {
 

@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 /**
  *
  * @author baonguyen
+ * Manufacturer Management: Add new, Update, Delete
  */
 public class JPanelManufacturer extends javax.swing.JPanel {
 
@@ -36,7 +37,6 @@ public class JPanelManufacturer extends javax.swing.JPanel {
         } catch (SQLException e) {
             
         }
-        //statement = connect.createStatement();
         loadTable();
     }
     
